@@ -28,6 +28,11 @@ BR.Main = {
   init: function () {
     BR.Storage.load();
 
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('debug') === 'true') {
+      BR.Debug.enabled = true;
+    }
+
     var canvas = BR.UI?.elements?.gameCanvas || document.getElementById('gameCanvas');
     var bgCanvas = document.getElementById('bgCanvas');
 

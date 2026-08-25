@@ -1,5 +1,46 @@
 window.BR = window.BR || {};
 
+BR.Debug = {
+  enabled: false,
+  fps: 0,
+  frameCount: 0,
+  fpsTimer: 0,
+  collisionCount: 0,
+  draw: function(ctx, game) {
+    if (!this.enabled) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(4, 4, 200, 130);
+    ctx.fillStyle = '#00ff88';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    const lines = [
+      'FPS: ' + this.fps,
+      'Bricks: ' + (game.brickManager ? game.brickManager.count : 0),
+      'Ball: (' + (game.balls[0] ? game.balls[0].x.toFixed(0) : '-') + ', ' + (game.balls[0] ? game.balls[0].y.toFixed(0) : '-') + ')',
+      'Collisions: ' + this.collisionCount,
+      'Level: ' + BR.Level.level + '  Wave: ' + BR.Level.wave,
+      'Pattern: ' + (game._currentPattern || '-'),
+      'State: ' + game.state,
+      'Score: ' + game.score
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], 10, 10 + i * 15);
+    }
+    ctx.restore();
+  },
+  tick: function(dt) {
+    this.frameCount++;
+    this.fpsTimer += dt;
+    if (this.fpsTimer >= 1) {
+      this.fps = this.frameCount;
+      this.frameCount = 0;
+      this.fpsTimer -= 1;
+    }
+  }
+};
+
 BR.Game = {
   canvas: null,
   ctx: null,
@@ -9,7 +50,7 @@ BR.Game = {
   state: 'idle',
   balls: [],
   paddle: null,
-  bricks: [],
+  brickManager: null,
   boss: null,
 
   score: 0,
@@ -26,6 +67,8 @@ BR.Game = {
 
   _waveCompletePending: false,
   _pendingWaveType: null,
+  _currentPattern: '',
+  _explosionSet: null,
 
   init() {
     this.canvas = BR.UI?.elements?.gameCanvas || document.getElementById('gameCanvas');
@@ -61,6 +104,7 @@ BR.Game = {
     this.doubleCoinActive = false;
     this.boss = null;
     this._waveCompletePending = false;
+    this._explosionSet = null;
 
     BR.Level.reset();
     BR.Level.currentArea = save.currentArea || 0;
@@ -68,6 +112,9 @@ BR.Game = {
     BR.Powerups.init();
     BR.Input.reset();
     BR.Particles.clear();
+    BR.Effects.clear();
+
+    this.brickManager = new BR.BrickManager();
 
     this.paddle = new BR.Paddle(this.width, this.height);
     this.paddle.applyWidthMultiplier(this.modifiers.paddleWidthMult);
@@ -101,8 +148,9 @@ BR.Game = {
   },
 
   _loadWave() {
-    this.bricks = [];
+    this.brickManager.clear();
     this.boss = null;
+    this._explosionSet = null;
     BR.UI.hideBossBar();
 
     if (BR.Level.shouldBossWave()) {
@@ -113,9 +161,15 @@ BR.Game = {
       return;
     }
 
-    this.bricks = BR.Level.generateWave(
+    const waveBricks = BR.Level.generateWave(
       BR.Level.level, BR.Level.wave, this.width, this.height
     );
+    for (let i = 0; i < waveBricks.length; i++) {
+      this.brickManager.addBrick(waveBricks[i]);
+    }
+
+    const config = BR.LevelGenerator.getConfig(BR.Level.level, BR.Level.wave, this.width, this.height);
+    this._currentPattern = config.pattern;
   },
 
   pause() {
@@ -138,6 +192,7 @@ BR.Game = {
       this.animFrameId = null;
     }
     BR.Particles.clear();
+    BR.Effects.clear();
     BR.Powerups.clear();
     BR.Input.reset();
   },
@@ -147,6 +202,8 @@ BR.Game = {
     let dt = (now - this.lastTime) / 1000;
     this.lastTime = now;
     if (dt > 0.05) dt = 0.05;
+
+    BR.Debug.tick(dt);
 
     if (this.state === 'playing' || this.state === 'boss') {
       this._update(dt);
@@ -165,14 +222,14 @@ BR.Game = {
 
   _update(dt) {
     const targetPx = BR.Input.targetX * this.width;
-
     this.paddle.update(dt, targetPx, this.width);
 
+    const kSpeed = 6 * dt * 60 * this.modifiers.paddleSpeedMult;
     if (BR.Input.isKeyDown('ArrowLeft') || BR.Input.isKeyDown('KeyA')) {
-      this.paddle.x -= 6 * this.modifiers.paddleSpeedMult;
+      this.paddle.x -= kSpeed;
     }
     if (BR.Input.isKeyDown('ArrowRight') || BR.Input.isKeyDown('KeyD')) {
-      this.paddle.x += 6 * this.modifiers.paddleSpeedMult;
+      this.paddle.x += kSpeed;
     }
     if (this.paddle.x < 0) this.paddle.x = 0;
     if (this.paddle.x + this.paddle.width > this.width) {
@@ -221,15 +278,17 @@ BR.Game = {
         this.combo = 0;
       }
 
-      for (let j = this.bricks.length - 1; j >= 0; j--) {
-        const brick = this.bricks[j];
-        if (!brick.alive) continue;
-
+      this._explosionSet = new Set();
+      const activeBricks = this.brickManager.getActiveBricks();
+      for (let j = activeBricks.length - 1; j >= 0; j--) {
+        const brick = activeBricks[j];
         if (BR.Physics.checkBrickCollision(ball, brick)) {
+          BR.Debug.collisionCount++;
           this._hitBrick(brick, ball);
           if (!ball.piercing) break;
         }
       }
+      this._explosionSet = null;
 
       if (this.paddle.magnetActive || this.modifiers.magnetStrength > 0) {
         const magnetStr = this.paddle.magnetActive ? 3 : this.modifiers.magnetStrength * 2;
@@ -283,10 +342,7 @@ BR.Game = {
       }
     }
 
-    this.bricks = this.bricks.filter(b => b.alive);
-    for (const brick of this.bricks) {
-      brick.update(dt);
-    }
+    this.brickManager.update(dt);
 
     BR.Powerups.update(dt, this.width, this.height, this.paddle, this);
 
@@ -298,6 +354,8 @@ BR.Game = {
     }
 
     BR.Particles.update(dt);
+    BR.Effects.update(dt);
+
     BR.UI.updateHUD(this.score, this.runCoins, BR.Level.level, BR.Level.wave, this.combo);
 
     if (this.boss && this.boss.alive) {
@@ -319,9 +377,15 @@ BR.Game = {
       BR.Audio?.criticalHit();
       if (BR.Particles) {
         BR.Particles.emitCritical(brick.x + brick.width / 2, brick.y + brick.height / 2);
-        BR.Particles.emitText(brick.x + brick.width / 2, brick.y, 'CRITICAL!', '#FFD700');
+      }
+      if (BR.Effects) {
+        BR.Effects.damageNumber(brick.x + brick.width / 2, brick.y, damage, true);
       }
       BR.UI.shake(8, 0.15);
+    } else {
+      if (BR.Effects) {
+        BR.Effects.damageNumber(brick.x + brick.width / 2, brick.y, damage, false);
+      }
     }
 
     if (this.modifiers.doubleStrike > 0 && Math.random() < this.modifiers.doubleStrike) {
@@ -338,7 +402,7 @@ BR.Game = {
     }
 
     if (destroyed) {
-      BR.Audio?.brickBreak();
+      brick.destroy();
 
       this.combo++;
       this.comboTimer = this.comboTimeout;
@@ -351,11 +415,6 @@ BR.Game = {
       coinGain = Math.floor(coinGain * this.modifiers.coinMult);
       this.runCoins += coinGain;
 
-      if (BR.Particles) {
-        BR.Particles.emitText(brick.x + brick.width / 2, brick.y, '+' + scoreGain, '#FFFFFF');
-        BR.Particles.emitCombo(brick.x + brick.width / 2, brick.y + brick.height / 2, this.combo);
-      }
-
       if (this.combo > 0 && this.combo % 5 === 0) {
         BR.Audio?.combo(this.combo);
         BR.UI.shake(3, 0.1);
@@ -367,21 +426,34 @@ BR.Game = {
         this.modifiers.powerupChance
       );
 
+      switch (brick.type.id) {
+        case 'explosive':
+          if (!this._explosionSet || !this._explosionSet.has(brick)) {
+            this._chainExplosion(brick.x + brick.width / 2, brick.y + brick.height / 2, 100, brick);
+            BR.Audio?.explosion();
+            if (BR.Effects) {
+              BR.Effects.addShockwave(brick.x + brick.width / 2, brick.y + brick.height / 2, 5, 80, '#ff3344', 0.4);
+            }
+            BR.UI.shake(10, 0.3);
+          }
+          break;
+        case 'chain':
+          this._chainHit(brick, 2 + this.modifiers.chainCount);
+          break;
+        case 'mystery':
+          this._mysteryReward(brick);
+          break;
+        case 'coin':
+          if (BR.Particles) {
+            BR.Particles.emitCoin(brick.x + brick.width / 2, brick.y);
+          }
+          break;
+      }
+
       if (this.modifiers.explosiveHits) {
-        this._chainExplosion(brick.x + brick.width / 2, brick.y + brick.height / 2, 60);
-      }
-
-      if (brick.type.id === 'explosive') {
-        this._chainExplosion(brick.x + brick.width / 2, brick.y + brick.height / 2, 100);
-        BR.Audio?.explosion();
-      }
-
-      if (brick.type.id === 'chain') {
-        this._chainHit(brick, 2 + this.modifiers.chainCount);
-      }
-
-      if (brick.type.id === 'mystery') {
-        this._mysteryReward(brick);
+        if (!this._explosionSet || !this._explosionSet.has(brick)) {
+          this._chainExplosion(brick.x + brick.width / 2, brick.y + brick.height / 2, 60, brick);
+        }
       }
 
       if (this.modifiers.vampireHeal && this.balls.length > 0) {
@@ -401,36 +473,37 @@ BR.Game = {
     }
   },
 
-  _chainExplosion(cx, cy, radius) {
-    for (const brick of this.bricks) {
-      if (!brick.alive) continue;
-      const bx = brick.x + brick.width / 2;
-      const by = brick.y + brick.height / 2;
-      const dist = Math.sqrt((bx - cx) * (bx - cx) + (by - cy) * (by - cy));
-      if (dist < radius && dist > 0) {
-        brick.hit(2);
-        if (!brick.alive) {
-          this.score += brick.scoreValue;
-          this.runCoins += Math.floor(brick.coinValue * this.modifiers.coinMult);
-        }
+  _chainExplosion(cx, cy, radius, sourceBrick) {
+    if (this._explosionSet && sourceBrick) {
+      if (this._explosionSet.has(sourceBrick)) return;
+      this._explosionSet.add(sourceBrick);
+    }
+
+    const hit = this.brickManager.damageArea(cx, cy, radius, 2, sourceBrick);
+    for (let i = 0; i < hit.length; i++) {
+      const brick = hit[i];
+      if (!brick.alive || brick.pendingDestroy) {
+        brick.destroy();
+        this.score += brick.scoreValue;
+        this.runCoins += Math.floor(brick.coinValue * this.modifiers.coinMult);
       }
     }
     if (BR.Particles) BR.Particles.emitExplosion(cx, cy, 20);
   },
 
   _chainHit(hitBrick, chainCount) {
-    const closest = [];
-    for (const brick of this.bricks) {
-      if (!brick.alive || brick === hitBrick) continue;
-      const dist = Math.sqrt(
-        Math.pow(brick.x + brick.width / 2 - (hitBrick.x + hitBrick.width / 2), 2) +
-        Math.pow(brick.y + brick.height / 2 - (hitBrick.y + hitBrick.height / 2), 2)
-      );
-      closest.push({ brick, dist });
+    const hit = this.brickManager.chainToNearest(hitBrick, chainCount, 1);
+    if (BR.Particles) {
+      for (let i = 0; i < hit.length; i++) {
+        BR.Particles.emitBrickHit(
+          hit[i].x + hit[i].width / 2,
+          hit[i].y + hit[i].height / 2,
+          '#aa44ff', 3
+        );
+      }
     }
-    closest.sort((a, b) => a.dist - b.dist);
-    for (let i = 0; i < Math.min(chainCount, closest.length); i++) {
-      closest[i].brick.hit(1);
+    if (BR.Events) {
+      BR.Events.emit('chainTriggered', { source: hitBrick, count: hit.length });
     }
   },
 
@@ -439,23 +512,30 @@ BR.Game = {
     if (roll < 0.4) {
       this.runCoins += 10;
       if (BR.Particles) BR.Particles.emitCoin(brick.x + brick.width / 2, brick.y);
+      if (BR.Effects) {
+        BR.Effects.addFloatingText(brick.x + brick.width / 2, brick.y, '+10 COINS', '#ffcc00', { fontSize: 14 });
+      }
     } else if (roll < 0.7) {
       this.score += 100;
-      if (BR.Particles) BR.Particles.emitText(brick.x + brick.width / 2, brick.y, '+100', '#FF00AA');
+      if (BR.Effects) {
+        BR.Effects.addFloatingText(brick.x + brick.width / 2, brick.y, '+100', '#ff00aa', { fontSize: 14 });
+      }
     } else {
       BR.Powerups._spawn(BR.Powerups.TYPES.MULTIBALL, brick.x + brick.width / 2, brick.y);
+      if (BR.Effects) {
+        BR.Effects.addFloatingText(brick.x + brick.width / 2, brick.y, 'POWER UP!', '#aa44ff', { fontSize: 12 });
+      }
     }
   },
 
   _checkWaveComplete() {
     if (this.state === 'boss') return;
-    const remaining = this.bricks.filter(b => b.alive).length;
-    if (remaining <= 0) {
-      BR.Audio?.levelComplete();
-      const waveType = BR.Level.nextWave();
-      this._waveCompletePending = true;
-      this._pendingWaveType = waveType;
-    }
+    if (this.brickManager.destructibleCount > 0) return;
+
+    BR.Audio?.levelComplete();
+    const waveType = BR.Level.nextWave();
+    this._waveCompletePending = true;
+    this._pendingWaveType = waveType;
   },
 
   _handleWaveComplete(waveType) {
@@ -599,7 +679,8 @@ BR.Game = {
   onPowerupBomb() {
     let closest = null;
     let closestDist = Infinity;
-    for (const brick of this.bricks) {
+    for (let i = 0; i < this.brickManager.bricks.length; i++) {
+      const brick = this.brickManager.bricks[i];
       if (!brick.alive) continue;
       const bx = brick.x + brick.width / 2;
       const by = brick.y + brick.height / 2;
@@ -613,20 +694,26 @@ BR.Game = {
     }
 
     if (closest) {
-      this._chainExplosion(closest.x + closest.width / 2, closest.y + closest.height / 2, 150);
+      this._chainExplosion(closest.x + closest.width / 2, closest.y + closest.height / 2, 150, closest);
     }
     BR.Audio?.explosion();
     BR.UI.shake(10, 0.3);
+    if (BR.Effects) {
+      BR.Effects.addShockwave(this.width / 2, this.height / 2, 10, 200, '#ff0044', 0.5);
+    }
   },
 
   onPowerupLightning() {
     const chain = 3;
-    const alive = this.bricks.filter(b => b.alive);
+    const alive = this.brickManager.getActiveBricks();
     alive.sort(() => Math.random() - 0.5);
     for (let i = 0; i < Math.min(chain, alive.length); i++) {
       alive[i].hit(3);
       if (BR.Particles) {
         BR.Particles.emitCritical(alive[i].x + alive[i].width / 2, alive[i].y + alive[i].height / 2, 5);
+      }
+      if (BR.Effects) {
+        BR.Effects.addShockwave(alive[i].x + alive[i].width / 2, alive[i].y + alive[i].height / 2, 3, 30, '#ffcc00', 0.2);
       }
     }
   },
@@ -680,9 +767,7 @@ BR.Game = {
 
     ctx.save();
 
-    for (const brick of this.bricks) {
-      brick.draw(ctx);
-    }
+    this.brickManager.draw(ctx);
 
     for (const ball of this.balls) {
       ball.draw(ctx);
@@ -697,8 +782,8 @@ BR.Game = {
     }
 
     BR.Powerups.draw(ctx);
-
     BR.Particles.draw(ctx);
+    BR.Effects.draw(ctx);
 
     ctx.restore();
 
@@ -715,5 +800,7 @@ BR.Game = {
         ctx.restore();
       }
     }
+
+    BR.Debug.draw(ctx, this);
   }
 };

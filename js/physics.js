@@ -39,14 +39,13 @@ BR.Physics = {
 
     const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
     ball.vx = Math.sin(angle) * speed;
-    ball.vy = -Math.cos(angle) * speed;
+    ball.vy = -Math.abs(Math.cos(angle) * speed);
 
     if (Math.abs(ball.vy) < 2) {
       ball.vy = -2;
     }
 
     ball.y = paddle.y - ball.radius - 1;
-
     paddle.hit();
     return true;
   },
@@ -61,21 +60,31 @@ BR.Physics = {
       return false;
     }
 
-    const overlapLeft = (ball.x + ball.radius) - brick.x;
-    const overlapRight = (brick.x + brick.width) - (ball.x - ball.radius);
-    const overlapTop = (ball.y + ball.radius) - brick.y;
+    if (ball.piercing) return true;
+
+    const overlapLeft   = (ball.x + ball.radius) - brick.x;
+    const overlapRight  = (brick.x + brick.width) - (ball.x - ball.radius);
+    const overlapTop    = (ball.y + ball.radius) - brick.y;
     const overlapBottom = (brick.y + brick.height) - (ball.y - ball.radius);
 
     const minOverlapX = Math.min(overlapLeft, overlapRight);
     const minOverlapY = Math.min(overlapTop, overlapBottom);
 
-    if (!ball.piercing) {
-      if (minOverlapX < minOverlapY) {
-        ball.vx = -ball.vx;
-        ball.x += overlapLeft < overlapRight ? -overlapLeft : overlapRight;
+    if (minOverlapX < minOverlapY) {
+      if (overlapLeft < overlapRight) {
+        ball.vx = -Math.abs(ball.vx);
+        ball.x = brick.x - ball.radius - 0.5;
       } else {
-        ball.vy = -ball.vy;
-        ball.y += overlapTop < overlapBottom ? -overlapTop : overlapBottom;
+        ball.vx = Math.abs(ball.vx);
+        ball.x = brick.x + brick.width + ball.radius + 0.5;
+      }
+    } else {
+      if (overlapTop < overlapBottom) {
+        ball.vy = -Math.abs(ball.vy);
+        ball.y = brick.y - ball.radius - 0.5;
+      } else {
+        ball.vy = Math.abs(ball.vy);
+        ball.y = brick.y + brick.height + ball.radius + 0.5;
       }
     }
 
