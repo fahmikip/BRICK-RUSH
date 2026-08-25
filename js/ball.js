@@ -15,11 +15,22 @@ BR.Ball = class Ball {
     this.trail = [];
     this.trailLength = 8;
     this.active = true;
-    this.piercing = false;
-    this.piercingTimer = 0;
     this.attached = true;
     this.glowSize = 4;
     this.hitFlash = 0;
+
+    this.modifiers = {
+      piercing: false,
+      speedMult: 1,
+      berserk: false,
+      trailColor: null
+    };
+  }
+
+  calculateDamage() {
+    let dmg = this.baseDamage;
+    if (this.modifiers.berserk) dmg *= 2;
+    return Math.ceil(dmg);
   }
 
   update(dt, paddle) {
@@ -36,13 +47,13 @@ BR.Ball = class Ball {
     this.y += this.vy * dt * 60;
 
     if (this.hitFlash > 0) this.hitFlash -= dt;
-    if (this.piercingTimer > 0) {
-      this.piercingTimer -= dt;
-      if (this.piercingTimer <= 0) this.piercing = false;
-    }
+
+    this.damage = this.calculateDamage();
 
     if (!this.attached && BR.Particles) {
-      BR.Particles.emitBallTrail(this.x, this.y, this.color);
+      const trailColor = this.modifiers.piercing ? '#ff8800' :
+                         this.modifiers.berserk ? '#ff0044' : this.color;
+      BR.Particles.emitBallTrail(this.x, this.y, trailColor);
     }
   }
 
@@ -55,22 +66,26 @@ BR.Ball = class Ball {
   }
 
   draw(ctx) {
+    const isPiercing = this.modifiers.piercing;
+    const isBerserk = this.modifiers.berserk;
+    const drawColor = isPiercing ? '#ff6600' : isBerserk ? '#ff0044' : this.color;
+
     for (let i = 0; i < this.trail.length; i++) {
       const t = this.trail[i];
-      const alpha = (i / this.trail.length) * 0.5;
+      const alpha = (i / this.trail.length) * 0.4;
       const size = (i / this.trail.length) * this.radius;
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = this.color;
+      ctx.fillStyle = drawColor;
       ctx.beginPath();
       ctx.arc(t.x, t.y, size, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
 
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = this.glowSize + (this.hitFlash > 0 ? 10 : 0);
+    ctx.shadowColor = drawColor;
+    ctx.shadowBlur = this.glowSize + (this.hitFlash > 0 ? 12 : 0) + (isPiercing ? 6 : 0) + (isBerserk ? 8 : 0);
 
-    ctx.fillStyle = this.hitFlash > 0 ? '#ffffff' : this.color;
+    ctx.fillStyle = this.hitFlash > 0 ? '#ffffff' : drawColor;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
@@ -91,13 +106,15 @@ BR.Ball = class Ball {
     this.vx = 0;
     this.vy = 0;
     this.trail = [];
-    this.piercing = false;
+    this.modifiers.piercing = false;
+    this.modifiers.speedMult = 1;
   }
 
   applySpeedMultiplier(mult) {
     const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     if (currentSpeed > 0) {
-      const ratio = this.speed * mult / currentSpeed;
+      const targetSpeed = this.baseSpeed * mult;
+      const ratio = targetSpeed / currentSpeed;
       this.vx *= ratio;
       this.vy *= ratio;
     }

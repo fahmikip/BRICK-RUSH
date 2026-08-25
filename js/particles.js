@@ -422,6 +422,103 @@ BR.Particles = {
     });
   },
 
+  emitPowerupCollect(x, y, color) {
+    this._spawn(12, {
+      x: x,
+      y: y,
+      color: color,
+      size: 3,
+      speed: 150,
+      speedVariance: 100,
+      gravity: 0,
+      life: 0.6,
+      shrink: true,
+      decay: 1.5
+    });
+    this._spawn(6, {
+      x: x,
+      y: y,
+      type: 'star',
+      color: '#ffffff',
+      size: 2,
+      speed: 100,
+      speedVariance: 60,
+      gravity: 0,
+      life: 0.8,
+      shrink: true,
+      decay: 1.2
+    });
+  },
+
+  emitComboBreak(x, y) {
+    this._spawn(8, {
+      x: x,
+      y: y,
+      type: 'square',
+      color: '#ff4444',
+      size: 3,
+      speed: 200,
+      speedVariance: 100,
+      gravity: 200,
+      life: 0.8,
+      shrink: true,
+      decay: 1
+    });
+  },
+
+  emitMegaCombo(x, y, combo) {
+    const count = Math.min(30, 10 + Math.floor(combo / 5));
+    this._spawn(count, {
+      x: x,
+      y: y,
+      type: 'star',
+      color: '#ff00aa',
+      size: 4,
+      speed: 250,
+      speedVariance: 150,
+      gravity: -50,
+      life: 1.5,
+      shrink: false,
+      decay: 0.8
+    });
+    this._spawn(Math.floor(count / 2), {
+      x: x,
+      y: y,
+      color: '#ffcc00',
+      size: 2,
+      speed: 150,
+      speedVariance: 80,
+      gravity: -30,
+      life: 1.2,
+      shrink: true,
+      decay: 1
+    });
+  },
+
+  emitLightning(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const steps = Math.max(3, Math.floor(dist / 15));
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const px = x1 + dx * t + (Math.random() - 0.5) * 10;
+      const py = y1 + dy * t + (Math.random() - 0.5) * 10;
+      this._spawn(1, {
+        x: px,
+        y: py,
+        color: '#ffcc00',
+        size: 2,
+        speed: 15,
+        speedVariance: 10,
+        gravity: 0,
+        life: 0.3,
+        shrink: true,
+        decay: 2
+      });
+    }
+  },
+
   clear() {
     while (this.active.length > 0) {
       const p = this.active.pop();

@@ -67,6 +67,7 @@
       <div id="hudCombo" class="hud-item hud-combo" aria-label="Combo counter" hidden>
         <span class="hud-label">COMBO</span>
         <span id="hudComboValue" class="hud-value">x2</span>
+        <div class="combo-timer-bar"><div id="hudComboBar" class="combo-timer-fill"></div></div>
       </div>
       <button id="btnPause" class="btn-icon hud-pause" aria-label="Pause game">&#10073;&#10073;</button>
     </div>
@@ -223,6 +224,9 @@
   <!-- Coin Animation Container -->
   <div id="coinAnim" aria-hidden="true"></div>
 
+  <!-- Watermark -->
+  <a href="https://github.com/fahmikip" target="_blank" class="watermark">github.com/fahmikip</a>
+
   <!-- Scripts -->
   <script src="./js/storage.js"></script>
   <script src="./js/audio.js"></script>
@@ -230,6 +234,10 @@
   <script src="./js/events.js"></script>
   <script src="./js/particles.js"></script>
   <script src="./js/effects.js"></script>
+  <script src="./js/combo.js"></script>
+  <script src="./js/eventQueue.js"></script>
+  <script src="./js/juice.js"></script>
+  <script src="./js/reward.js"></script>
   <script src="./js/ball.js"></script>
   <script src="./js/paddle.js"></script>
   <script src="./js/brick.js"></script>

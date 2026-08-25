@@ -205,5 +205,27 @@ BR.Audio = {
   explosion() {
     this._play(60, 'sawtooth', 0.4, 0.35);
     this._playNoise(0.35, 0.3, 100, 400);
+  },
+
+  comboBreak() {
+    this._play(300, 'square', 0.15, 0.15, -10);
+    this._play(200, 'square', 0.2, 0.12, -20);
+  },
+
+  powerupExpire() {
+    this._play(600, 'sine', 0.1, 0.1);
+    this._play(400, 'sine', 0.15, 0.08);
+  },
+
+  chainReaction(depth) {
+    const freq = 300 + depth * 50;
+    this._play(freq, 'square', 0.08, 0.12);
+  },
+
+  megaCombo() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.15, 0.2), i * 60);
+    });
   }
 };

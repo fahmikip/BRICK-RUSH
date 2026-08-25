@@ -257,21 +257,26 @@ BR.UI = {
     }
   },
 
-  updateHUD(score, coins, level, wave, combo) {
+  updateHUD(score, coins, level, wave, combo, comboTimerRatio) {
     if (this.elements.hudScore) this.elements.hudScore.textContent = score.toLocaleString();
-    if (this.elements.hudCoins) this.elements.hudCoins.textContent = coins;
+    if (this.elements.hudCoins) this.elements.hudCoins.textContent = coins.toLocaleString();
     if (this.elements.hudLevel) this.elements.hudLevel.textContent = 'Lv.' + level;
     if (this.elements.hudWave) this.elements.hudWave.textContent = 'W' + wave;
     if (this.elements.hudCombo) {
       var comboEl = this.elements.hudCombo;
       var comboVal = document.getElementById('hudComboValue');
+      var comboBar = document.getElementById('hudComboBar');
       if (combo > 1) {
         if (comboVal) comboVal.textContent = 'x' + combo;
         comboEl.style.display = 'flex';
-        comboEl.classList.remove('mega');
-        if (combo >= 25) comboEl.classList.add('mega');
+        comboEl.classList.remove('mega', 'ultra');
+        if (combo >= 50) comboEl.classList.add('ultra');
+        else if (combo >= 25) comboEl.classList.add('mega');
       } else {
         comboEl.style.display = 'none';
+      }
+      if (comboBar && combo > 1) {
+        comboBar.style.width = ((comboTimerRatio || 0) * 100) + '%';
       }
     }
   },
