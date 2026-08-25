@@ -1,0 +1,518 @@
+/* ============================================
+   BRICK RUSH — Global Styles
+   ============================================ */
+
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #12122a;
+  --bg-card: rgba(20, 20, 50, 0.8);
+  --accent-neon: #00f0ff;
+  --accent-pink: #ff00aa;
+  --accent-green: #00ff88;
+  --accent-yellow: #ffcc00;
+  --accent-red: #ff3344;
+  --text-primary: #ffffff;
+  --text-secondary: #8888aa;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glow-neon: 0 0 20px rgba(0, 240, 255, 0.3);
+  --glow-pink: 0 0 20px rgba(255, 0, 170, 0.3);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  font-family: var(--font-main);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-neon);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-pink);
+}
+
+/* Game Canvas */
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  background: var(--bg-primary);
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+/* Background Canvas */
+#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ============================================
+   Overlay Base
+   ============================================ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  background: rgba(10, 10, 26, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+.overlay[hidden] {
+  display: none !important;
+}
+
+.modal-overlay {
+  z-index: 500;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn {
+  padding: 14px 40px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-main);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border: 2px solid var(--accent-neon);
+  background: transparent;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 48px;
+  outline: none;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--glow-neon);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-neon);
+  outline-offset: 3px;
+}
+
+.btn-primary {
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+  border-color: var(--accent-neon);
+}
+
+.btn-primary:hover {
+  background: #33f4ff;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent-neon);
+  border-color: var(--accent-neon);
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.btn-danger {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.btn-danger:hover {
+  background: var(--accent-red);
+  color: var(--text-primary);
+  box-shadow: 0 0 20px rgba(255, 51, 68, 0.4);
+}
+
+.btn-icon {
+  background: none;
+  border: 2px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  line-height: 1;
+}
+
+.btn-icon:hover {
+  border-color: var(--accent-neon);
+  box-shadow: var(--glow-neon);
+}
+
+.btn-icon:focus-visible {
+  outline: 2px solid var(--accent-neon);
+  outline-offset: 3px;
+}
+
+/* ============================================
+   Card / Glass
+   ============================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 32px;
+}
+
+/* ============================================
+   Title Glow
+   ============================================ */
+.title-glow {
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow:
+    0 0 10px var(--accent-neon),
+    0 0 30px rgba(0, 240, 255, 0.4),
+    0 0 60px rgba(0, 240, 255, 0.2);
+  color: var(--text-primary);
+}
+
+.overlay-title {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* ============================================
+   Coin Icon
+   ============================================ */
+.coin-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  box-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+  vertical-align: middle;
+  font-size: 0;
+  line-height: 1;
+}
+
+/* ============================================
+   Toggle Button
+   ============================================ */
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  outline: none;
+}
+
+.toggle-btn:focus-visible {
+  outline: 2px solid var(--accent-neon);
+  outline-offset: 3px;
+}
+
+.toggle-track {
+  display: block;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  background: #333;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-btn.toggle-on .toggle-track {
+  background: var(--accent-green);
+}
+
+.toggle-thumb {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn.toggle-on .toggle-thumb {
+  transform: translateX(24px);
+}
+
+/* ============================================
+   Achievement Item
+   ============================================ */
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 10px;
+}
+
+.achievement-item.locked {
+  opacity: 0.4;
+}
+
+.achievement-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 2px solid var(--glass-border);
+}
+
+.achievement-item:not(.locked) .achievement-icon {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+.achievement-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.achievement-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Shop Item
+   ============================================ */
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shop-item:hover {
+  border-color: var(--accent-neon);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+.shop-item:active {
+  transform: scale(0.98);
+}
+
+.shop-item.maxed {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.shop-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.shop-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-item-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.shop-item-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.shop-item-cost {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--accent-yellow);
+  white-space: nowrap;
+}
+
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.6), 0 0 50px rgba(0, 240, 255, 0.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes coinFly {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(0.4);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

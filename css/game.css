@@ -1,0 +1,314 @@
+/* ============================================
+   BRICK RUSH — Game Screen Styles
+   ============================================ */
+
+/* HUD Bar */
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 8px 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.hud[hidden] {
+  display: none !important;
+}
+
+.hud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.hud-label {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.hud-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Combo */
+.hud-combo {
+  transition: all 0.3s ease;
+}
+
+.hud-combo.active {
+  opacity: 1;
+}
+
+.hud-combo.active .hud-value {
+  color: var(--accent-yellow);
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.5);
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+.hud-combo.mega .hud-value {
+  color: var(--accent-pink);
+  text-shadow:
+    0 0 12px rgba(255, 0, 170, 0.6),
+    0 0 30px rgba(255, 0, 170, 0.3);
+  font-size: 1.2rem;
+}
+
+/* Pause Button */
+.hud-pause {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+/* ============================================
+   Boss HP Bar
+   ============================================ */
+.boss-bar {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  padding: 6px 16px;
+  background: rgba(10, 10, 26, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: slideDown 0.4s ease;
+}
+
+.boss-bar[hidden] {
+  display: none !important;
+}
+
+.boss-bar-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.boss-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-red);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.boss-hp-track {
+  flex: 1;
+  height: 14px;
+  background: var(--bg-secondary);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.boss-hp-fill {
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--accent-yellow), var(--accent-red));
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.boss-hp-fill.critical {
+  animation: progressPulse 0.5s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--accent-red), #ff0044);
+}
+
+.boss-hp-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+  border-radius: 7px 7px 0 0;
+}
+
+/* ============================================
+   Power-up Indicators
+   ============================================ */
+.powerup-indicators {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.powerup-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  animation: scaleIn 0.3s ease;
+  min-width: 52px;
+}
+
+.powerup-icon {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.powerup-timer-track {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-secondary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.powerup-timer-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.powerup-timer-fill.neon {
+  background: var(--accent-neon);
+}
+
+.powerup-timer-fill.pink {
+  background: var(--accent-pink);
+}
+
+.powerup-timer-fill.green {
+  background: var(--accent-green);
+}
+
+.powerup-timer-fill.yellow {
+  background: var(--accent-yellow);
+}
+
+/* ============================================
+   Canvas Styles for Game Rendering
+   ============================================ */
+#gameCanvas {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   Screen Flash (damage / combo)
+   ============================================ */
+.screen-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 200;
+  animation: flashFade 0.2s ease forwards;
+}
+
+.screen-flash.damage {
+  background: rgba(255, 51, 68, 0.2);
+}
+
+.screen-flash.combo {
+  background: rgba(255, 204, 0, 0.15);
+}
+
+.screen-flash.boss-defeat {
+  background: rgba(0, 255, 136, 0.3);
+}
+
+@keyframes flashFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ============================================
+   Level Transition
+   ============================================ */
+.level-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  background: var(--bg-primary);
+  animation: fadeIn 0.3s ease;
+}
+
+.level-transition-text {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 10px var(--accent-neon),
+    0 0 30px rgba(0, 240, 255, 0.4);
+  animation: scaleIn 0.5s ease;
+}
+
+/* ============================================
+   Damage Numbers (floating)
+   ============================================ */
+.damage-number {
+  position: fixed;
+  font-size: 1rem;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 80;
+  animation: damageFloat 0.8s ease forwards;
+  text-shadow: 0 0 6px currentColor;
+}
+
+.damage-number.normal { color: var(--text-primary); }
+.damage-number.critical { color: var(--accent-yellow); font-size: 1.3rem; }
+.damage-number.heal { color: var(--accent-green); }
+
+@keyframes damageFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.7);
+  }
+}

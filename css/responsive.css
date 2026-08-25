@@ -1,0 +1,466 @@
+/* ============================================
+   BRICK RUSH — Responsive Styles
+   ============================================ */
+
+/* ---- Tablet (768px - 1023px) ---- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .menu-container {
+    padding: 40px 36px;
+  }
+
+  .menu-logo {
+    font-size: 3.2rem;
+  }
+
+  .overlay-title {
+    font-size: 2rem;
+  }
+
+  .gameover-title {
+    font-size: 2.8rem;
+  }
+
+  .upgrade-card {
+    min-width: 160px;
+    max-width: 200px;
+  }
+
+  .hud-value {
+    font-size: 1.1rem;
+  }
+
+  .hud-label {
+    font-size: 0.6rem;
+  }
+}
+
+/* ---- Mobile (max-width: 767px) ---- */
+@media (max-width: 767px) {
+  :root {
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  /* Menu */
+  .menu-container {
+    padding: 32px 24px;
+    gap: 28px;
+    max-width: 340px;
+  }
+
+  .menu-logo {
+    font-size: 2.2rem;
+  }
+
+  .menu-tagline {
+    font-size: 0.65rem;
+    letter-spacing: 4px;
+  }
+
+  .menu-buttons {
+    gap: 12px;
+    max-width: 240px;
+  }
+
+  .btn {
+    padding: 12px 32px;
+    font-size: 0.9rem;
+    min-height: 44px;
+    letter-spacing: 1.5px;
+  }
+
+  .menu-info {
+    gap: 24px;
+  }
+
+  .menu-info-value {
+    font-size: 1.1rem;
+  }
+
+  /* Overlay Titles */
+  .overlay-title {
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+  }
+
+  /* Upgrade Cards */
+  .upgrade-choices {
+    gap: 10px;
+  }
+
+  .upgrade-card {
+    min-width: 120px;
+    max-width: 150px;
+    padding: 18px 12px;
+  }
+
+  .upgrade-icon {
+    font-size: 1.6rem;
+  }
+
+  .upgrade-name {
+    font-size: 0.8rem;
+  }
+
+  .upgrade-desc {
+    font-size: 0.65rem;
+  }
+
+  /* HUD */
+  .hud {
+    padding: 6px 10px;
+  }
+
+  .hud-row {
+    gap: 6px;
+  }
+
+  .hud-label {
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+  }
+
+  .hud-value {
+    font-size: 0.85rem;
+  }
+
+  .hud-combo.mega .hud-value {
+    font-size: 1rem;
+  }
+
+  /* Boss Bar */
+  .boss-bar {
+    top: 44px;
+    padding: 4px 10px;
+  }
+
+  .boss-name {
+    font-size: 0.6rem;
+    min-width: 50px;
+  }
+
+  .boss-hp-track {
+    height: 10px;
+  }
+
+  /* Game Over */
+  .gameover-container {
+    padding: 28px 20px;
+  }
+
+  .gameover-title {
+    font-size: 2rem;
+  }
+
+  .gameover-stats {
+    gap: 16px;
+  }
+
+  .gameover-stat-value {
+    font-size: 1.1rem;
+  }
+
+  .new-highscore {
+    font-size: 0.85rem;
+  }
+
+  /* Pause */
+  .pause-container {
+    padding: 36px 28px;
+  }
+
+  /* Settings */
+  .settings-container {
+    padding: 28px 20px;
+  }
+
+  .settings-row {
+    padding: 12px 0;
+  }
+
+  .settings-label {
+    font-size: 0.75rem;
+  }
+
+  /* Achievements / Shop */
+  .achievements-container,
+  .shop-container {
+    padding: 28px 18px;
+    max-height: 80vh;
+  }
+
+  .achievement-item,
+  .shop-item {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .achievement-icon,
+  .shop-item-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .achievement-name,
+  .shop-item-name {
+    font-size: 0.8rem;
+  }
+
+  .achievement-desc,
+  .shop-item-desc {
+    font-size: 0.7rem;
+  }
+
+  /* Victory */
+  .victory-container {
+    padding: 32px 24px;
+  }
+
+  .victory-title {
+    font-size: 1.8rem;
+  }
+
+  /* Reset Modal */
+  .reset-modal {
+    padding: 28px 24px;
+  }
+
+  .reset-message {
+    font-size: 1rem;
+  }
+
+  /* Power-up Indicators */
+  .powerup-indicators {
+    gap: 6px;
+    bottom: 10px;
+  }
+
+  .powerup-indicator {
+    padding: 4px 8px;
+    min-width: 44px;
+  }
+
+  .powerup-icon {
+    font-size: 1rem;
+  }
+}
+
+/* ---- Small Mobile (max-width: 380px) ---- */
+@media (max-width: 380px) {
+  .menu-container {
+    padding: 24px 16px;
+    gap: 22px;
+  }
+
+  .menu-logo {
+    font-size: 1.8rem;
+  }
+
+  .menu-tagline {
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+  }
+
+  .btn {
+    padding: 11px 24px;
+    font-size: 0.8rem;
+    min-height: 42px;
+  }
+
+  .menu-info {
+    gap: 16px;
+  }
+
+  .overlay-title {
+    font-size: 1.2rem;
+  }
+
+  .upgrade-choices {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .upgrade-card {
+    max-width: 200px;
+    width: 100%;
+  }
+
+  .gameover-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* ---- Landscape Mode ---- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .menu-container {
+    padding: 20px 28px;
+    gap: 18px;
+  }
+
+  .menu-logo {
+    font-size: 1.8rem;
+  }
+
+  .menu-tagline {
+    font-size: 0.6rem;
+    margin-bottom: 4px;
+  }
+
+  .menu-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 100%;
+  }
+
+  .menu-buttons .btn {
+    flex: 0 0 auto;
+    padding: 10px 24px;
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+
+  .menu-info {
+    gap: 20px;
+  }
+
+  .overlay {
+    padding: 10px;
+  }
+
+  .upgrade-choices {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .upgrade-card {
+    padding: 14px 10px;
+  }
+
+  .gameover-container,
+  .pause-container,
+  .settings-container,
+  .achievements-container,
+  .shop-container,
+  .victory-container {
+    padding: 20px;
+  }
+
+  .overlay-title {
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+    margin-top: 0;
+  }
+
+  .boss-bar {
+    top: 40px;
+  }
+}
+
+/* ---- Safe Area (Notched Devices) ---- */
+@supports (padding: env(safe-area-inset-top)) {
+  .hud {
+    padding-top: calc(6px + env(safe-area-inset-top));
+    padding-left: calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
+  }
+
+  .boss-bar {
+    top: calc(52px + env(safe-area-inset-top));
+    padding-left: calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
+  }
+
+  .powerup-indicators {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---- Large Desktop (min-width: 1400px) ---- */
+@media (min-width: 1400px) {
+  .menu-container {
+    max-width: 480px;
+    padding: 56px 48px;
+  }
+
+  .menu-logo {
+    font-size: 3.8rem;
+  }
+
+  .overlay-title {
+    font-size: 2.4rem;
+  }
+
+  .hud-value {
+    font-size: 1.2rem;
+  }
+}
+
+/* ---- Touch Targets (minimum 44x44px) ---- */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .btn-icon {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .toggle-btn {
+    min-width: 52px;
+    min-height: 48px;
+  }
+
+  .upgrade-card {
+    min-height: 120px;
+  }
+
+  .shop-item {
+    min-height: 48px;
+  }
+
+  .achievement-item {
+    min-height: 48px;
+  }
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- High Contrast ---- */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-bg: rgba(0, 0, 0, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --text-secondary: #aaaacc;
+  }
+
+  .btn {
+    border-width: 3px;
+  }
+}
+
+/* ---- Print (unlikely but good practice) ---- */
+@media print {
+  .overlay,
+  .hud,
+  .boss-bar,
+  #bgCanvas,
+  #coinAnim {
+    display: none !important;
+  }
+}

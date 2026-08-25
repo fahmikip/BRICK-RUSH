@@ -1,0 +1,22 @@
+{
+  "name": "BRICK RUSH — Break & Upgrade",
+  "short_name": "BrickRush",
+  "description": "Brick Breaker + Roguelike Upgrade + Boss Battle",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

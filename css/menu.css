@@ -1,0 +1,457 @@
+/* ============================================
+   BRICK RUSH — Main Menu Styles
+   ============================================ */
+
+#mainMenu {
+  z-index: 100;
+  flex-direction: column;
+}
+
+/* Menu Container */
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 90%;
+  animation: scaleIn 0.5s ease;
+}
+
+/* Logo */
+.menu-logo-wrapper {
+  text-align: center;
+}
+
+.menu-logo {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent-neon), var(--accent-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
+  animation: float 4s ease-in-out infinite;
+}
+
+.menu-tagline {
+  font-size: 0.8rem;
+  color: var(--accent-neon);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Buttons */
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.menu-buttons .btn {
+  width: 100%;
+}
+
+/* Info Section */
+.menu-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding-top: 8px;
+}
+
+.menu-info-label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.menu-info-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent-neon);
+}
+
+.menu-best-score {
+  text-align: center;
+}
+
+.menu-coins {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.menu-coins .coin-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.menu-coins .menu-info-value {
+  color: var(--accent-yellow);
+}
+
+/* Menu particles background */
+#mainMenu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 10% 20%, var(--accent-neon), transparent),
+    radial-gradient(1px 1px at 80% 30%, var(--accent-pink), transparent),
+    radial-gradient(1px 1px at 40% 80%, var(--accent-neon), transparent),
+    radial-gradient(1px 1px at 90% 70%, var(--accent-pink), transparent),
+    radial-gradient(1px 1px at 20% 60%, var(--accent-green), transparent),
+    radial-gradient(1px 1px at 60% 10%, var(--accent-yellow), transparent);
+  opacity: 0.4;
+  animation: fadeIn 2s ease;
+}
+
+/* Overlay Titles */
+.overlay-title {
+  font-size: 1.8rem;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Upgrade Overlay */
+.upgrade-container {
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.upgrade-choices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.upgrade-card {
+  flex: 1;
+  min-width: 150px;
+  max-width: 180px;
+  padding: 24px 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 2px solid var(--glass-border);
+}
+
+.upgrade-card:hover {
+  border-color: var(--accent-neon);
+  transform: translateY(-4px);
+  box-shadow: var(--glow-neon);
+}
+
+.upgrade-card:active {
+  transform: scale(0.96);
+}
+
+.upgrade-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.upgrade-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: var(--accent-neon);
+}
+
+.upgrade-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.upgrade-level {
+  font-size: 0.65rem;
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+/* Pause */
+.pause-container {
+  text-align: center;
+  padding: 48px 40px;
+  min-width: 280px;
+}
+
+.pause-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.pause-buttons .btn {
+  width: 100%;
+  max-width: 240px;
+}
+
+/* Game Over */
+.gameover-container {
+  text-align: center;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  animation: scaleIn 0.4s ease;
+}
+
+.gameover-title {
+  font-size: 2.5rem;
+  color: var(--accent-red);
+  text-shadow:
+    0 0 10px var(--accent-red),
+    0 0 30px rgba(255, 51, 68, 0.4);
+  margin-bottom: 24px;
+}
+
+.gameover-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.gameover-stat {
+  text-align: center;
+}
+
+.gameover-stat-label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.gameover-stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent-neon);
+}
+
+.new-highscore {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-yellow);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+  animation: pulse 1s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.gameover-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.gameover-buttons .btn {
+  width: 100%;
+  max-width: 240px;
+}
+
+/* Settings */
+.settings-container {
+  text-align: center;
+  padding: 40px;
+  max-width: 380px;
+  width: 90%;
+}
+
+.settings-list {
+  margin-bottom: 24px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.settings-actions .btn {
+  width: 100%;
+  max-width: 240px;
+}
+
+/* Achievements */
+.achievements-container {
+  text-align: center;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.achievement-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  text-align: left;
+  padding-right: 4px;
+}
+
+.achievements-container .btn {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Shop */
+.shop-container {
+  text-align: center;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-balance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.shop-coin-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent-yellow);
+}
+
+.shop-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.shop-container .btn {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Victory */
+.victory-container {
+  text-align: center;
+  padding: 48px 40px;
+  max-width: 400px;
+  width: 90%;
+  animation: scaleIn 0.5s ease;
+}
+
+.victory-title {
+  font-size: 2.2rem;
+  color: var(--accent-green);
+  text-shadow:
+    0 0 10px var(--accent-green),
+    0 0 30px rgba(0, 255, 136, 0.4);
+  margin-bottom: 24px;
+}
+
+.victory-rewards {
+  margin-bottom: 28px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* Reset Modal */
+.reset-modal {
+  text-align: center;
+  padding: 36px 32px;
+  max-width: 340px;
+  width: 85%;
+}
+
+.reset-message {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.reset-warning {
+  font-size: 0.8rem;
+  color: var(--accent-red);
+  margin-bottom: 24px;
+}
+
+.reset-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.reset-buttons .btn {
+  flex: 1;
+  max-width: 140px;
+}
+
+/* Coin Animation Container */
+#coinAnim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.coin-fly {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+  animation: coinFly 0.8s ease forwards;
+}

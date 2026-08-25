@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="theme-color" content="#0a0a1a">
+  <title>BRICK RUSH — Break & Upgrade</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/game.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+
+  <!-- Background Particles Canvas -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" aria-label="Brick Rush game area"></canvas>
+
+  <!-- Main Menu Overlay -->
+  <div id="mainMenu" class="overlay" role="main">
+    <div class="menu-container card">
+      <div class="menu-logo-wrapper">
+        <h1 class="menu-logo title-glow">BRICK RUSH</h1>
+        <p class="menu-tagline">BREAK. UPGRADE. DOMINATE.</p>
+      </div>
+      <div class="menu-buttons">
+        <button id="btnPlay" class="btn btn-primary" aria-label="Start playing">PLAY</button>
+        <button id="btnUpgrades" class="btn btn-secondary" aria-label="Open upgrades shop">UPGRADES</button>
+        <button id="btnAchievements" class="btn btn-secondary" aria-label="View achievements">ACHIEVEMENTS</button>
+        <button id="btnSettings" class="btn btn-secondary" aria-label="Open settings">SETTINGS</button>
+      </div>
+      <div class="menu-info">
+        <div class="menu-best-score">
+          <span class="menu-info-label">BEST</span>
+          <span id="bestScoreDisplay" class="menu-info-value">0</span>
+        </div>
+        <div class="menu-coins">
+          <span class="coin-icon" aria-hidden="true">&#9679;</span>
+          <span id="coinBalance" class="menu-info-value">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game HUD -->
+  <div id="gameHud" class="hud" role="status" aria-live="polite" hidden>
+    <div class="hud-row">
+      <div class="hud-item">
+        <span class="hud-label">LEVEL</span>
+        <span id="hudLevel" class="hud-value">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">WAVE</span>
+        <span id="hudWave" class="hud-value">1/3</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">SCORE</span>
+        <span id="hudScore" class="hud-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">COINS</span>
+        <span id="hudCoins" class="hud-value">0</span>
+      </div>
+      <div id="hudCombo" class="hud-item hud-combo" aria-label="Combo counter" hidden>
+        <span class="hud-label">COMBO</span>
+        <span id="hudComboValue" class="hud-value">x2</span>
+      </div>
+      <button id="btnPause" class="btn-icon hud-pause" aria-label="Pause game">&#10073;&#10073;</button>
+    </div>
+  </div>
+
+  <!-- Boss HP Bar -->
+  <div id="bossBar" class="boss-bar" hidden>
+    <div class="boss-bar-inner">
+      <span id="bossName" class="boss-name">BOSS</span>
+      <div class="boss-hp-track">
+        <div id="bossHpFill" class="boss-hp-fill" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upgrade Selection Overlay -->
+  <div id="upgradeOverlay" class="overlay" hidden>
+    <div class="upgrade-container">
+      <h2 class="overlay-title title-glow">CHOOSE YOUR UPGRADE</h2>
+      <div class="upgrade-choices">
+        <button id="upgrade1" class="upgrade-card card" aria-label="Upgrade choice 1">
+          <div class="upgrade-icon" aria-hidden="true"></div>
+          <div class="upgrade-name"></div>
+          <div class="upgrade-desc"></div>
+          <div class="upgrade-level"></div>
+        </button>
+        <button id="upgrade2" class="upgrade-card card" aria-label="Upgrade choice 2">
+          <div class="upgrade-icon" aria-hidden="true"></div>
+          <div class="upgrade-name"></div>
+          <div class="upgrade-desc"></div>
+          <div class="upgrade-level"></div>
+        </button>
+        <button id="upgrade3" class="upgrade-card card" aria-label="Upgrade choice 3">
+          <div class="upgrade-icon" aria-hidden="true"></div>
+          <div class="upgrade-name"></div>
+          <div class="upgrade-desc"></div>
+          <div class="upgrade-level"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="gameOverOverlay" class="overlay" hidden>
+    <div class="gameover-container card">
+      <h2 class="overlay-title title-glow gameover-title">RUN OVER</h2>
+      <div class="gameover-stats">
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">SCORE</span>
+          <span id="finalScore" class="gameover-stat-value">0</span>
+        </div>
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">BEST</span>
+          <span id="finalBest" class="gameover-stat-value">0</span>
+        </div>
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">COINS</span>
+          <span id="finalCoins" class="gameover-stat-value">0</span>
+        </div>
+      </div>
+      <div id="newHighScore" class="new-highscore" hidden>NEW HIGH SCORE!</div>
+      <div class="gameover-buttons">
+        <button id="btnRetry" class="btn btn-primary" aria-label="Retry level">RETRY</button>
+        <button id="btnMenuGO" class="btn btn-secondary" aria-label="Back to menu">MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div id="pauseOverlay" class="overlay" hidden>
+    <div class="pause-container card">
+      <h2 class="overlay-title title-glow">PAUSED</h2>
+      <div class="pause-buttons">
+        <button id="btnResume" class="btn btn-primary" aria-label="Resume game">RESUME</button>
+        <button id="btnQuit" class="btn btn-danger" aria-label="Quit to menu">QUIT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Overlay -->
+  <div id="settingsOverlay" class="overlay" hidden>
+    <div class="settings-container card">
+      <h2 class="overlay-title title-glow">SETTINGS</h2>
+      <div class="settings-list">
+        <div class="settings-row">
+          <span class="settings-label">MUSIC</span>
+          <button id="toggleMusic" class="toggle-btn toggle-on" role="switch" aria-checked="true" aria-label="Toggle music">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">SOUND</span>
+          <button id="toggleSound" class="toggle-btn toggle-on" role="switch" aria-checked="true" aria-label="Toggle sound effects">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">REDUCE MOTION</span>
+          <button id="toggleMotion" class="toggle-btn" role="switch" aria-checked="false" aria-label="Reduce motion">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </button>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <button id="btnReset" class="btn btn-danger" aria-label="Reset all progress">RESET PROGRESS</button>
+        <button id="btnSettingsBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievements Overlay -->
+  <div id="achievementsOverlay" class="overlay" hidden>
+    <div class="achievements-container card">
+      <h2 class="overlay-title title-glow">ACHIEVEMENTS</h2>
+      <div id="achievementList" class="achievement-list" role="list"></div>
+      <button id="btnAchBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+    </div>
+  </div>
+
+  <!-- Upgrades / Shop Overlay -->
+  <div id="shopOverlay" class="overlay" hidden>
+    <div class="shop-container card">
+      <h2 class="overlay-title title-glow">UPGRADES</h2>
+      <div class="shop-balance">
+        <span class="coin-icon" aria-hidden="true">&#9679;</span>
+        <span id="shopCoinBalance" class="shop-coin-value">0</span>
+      </div>
+      <div id="shopList" class="shop-list" role="list"></div>
+      <button id="btnShopBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+    </div>
+  </div>
+
+  <!-- Victory Overlay -->
+  <div id="victoryOverlay" class="overlay" hidden>
+    <div class="victory-container card">
+      <h2 class="overlay-title title-glow victory-title">BOSS DEFEATED!</h2>
+      <div class="victory-rewards" id="victoryRewards"></div>
+      <button id="btnContinue" class="btn btn-primary" aria-label="Continue to next level">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="resetModal" class="overlay modal-overlay" hidden>
+    <div class="reset-modal card">
+      <p class="reset-message">Reset all progress?</p>
+      <p class="reset-warning">This cannot be undone.</p>
+      <div class="reset-buttons">
+        <button id="btnResetConfirm" class="btn btn-danger" aria-label="Confirm reset">RESET</button>
+        <button id="btnResetCancel" class="btn btn-secondary" aria-label="Cancel reset">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coin Animation Container -->
+  <div id="coinAnim" aria-hidden="true"></div>
+
+  <!-- Scripts -->
+  <script src="./js/storage.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/input.js"></script>
+  <script src="./js/particles.js"></script>
+  <script src="./js/ball.js"></script>
+  <script src="./js/paddle.js"></script>
+  <script src="./js/brick.js"></script>
+  <script src="./js/physics.js"></script>
+  <script src="./js/level.js"></script>
+  <script src="./js/boss.js"></script>
+  <script src="./js/powerups.js"></script>
+  <script src="./js/upgrades.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/game.js"></script>
+  <script src="./js/main.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
