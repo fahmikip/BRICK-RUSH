@@ -756,6 +756,8 @@ BR.Game = {
       } else {
         this._loadWave();
       }
+    } else {
+      this._loadWave();
     }
   },
 
