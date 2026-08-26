@@ -327,5 +327,30 @@ BR.Audio = {
   tokenCollect() {
     this._play(1319, 'sine', 0.1, 0.2);
     setTimeout(() => this._play(1568, 'sine', 0.15, 0.2), 60);
+  },
+
+  levelUp() {
+    var notes = [523, 659, 784, 1047, 1319];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.2, 0.3), i * 80);
+    });
+  },
+
+  missionComplete() {
+    this._play(880, 'sine', 0.15, 0.2);
+    setTimeout(() => this._play(1100, 'sine', 0.15, 0.2), 100);
+    setTimeout(() => this._play(1320, 'sine', 0.25, 0.25), 200);
+  },
+
+  achievementUnlock() {
+    var notes = [784, 988, 1175, 1568];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.2, 0.25), i * 120);
+    });
+  },
+
+  notification() {
+    this._play(1200, 'sine', 0.08, 0.15);
+    setTimeout(() => this._play(1600, 'sine', 0.12, 0.15), 60);
   }
 };

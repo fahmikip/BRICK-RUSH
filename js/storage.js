@@ -2,10 +2,10 @@ window.BR = window.BR || {};
 
 BR.Storage = {
   _key: 'brickrush_save',
-  _schemaVersion: 3,
+  _schemaVersion: 4,
 
   _defaults: {
-    version: 3,
+    version: 4,
     coins: 0,
     bestScore: 0,
     totalBricksDestroyed: 0,
@@ -49,8 +49,34 @@ BR.Storage = {
       music: true,
       sound: true,
       vibration: true,
-      reduceMotion: false
-    }
+      reduceMotion: false,
+      fullscreen: false
+    },
+    meta: {
+      level: 1,
+      xp: 0,
+      totalXP: 0
+    },
+    missions: {
+      daily: {},
+      weekly: {}
+    },
+    statistics: {
+      totalScore: 0,
+      totalPowerUps: 0,
+      totalCriticalHits: 0,
+      totalExplosions: 0,
+      totalLightningChains: 0,
+      eliteWavesCleared: 0
+    },
+    daily: {
+      lastDate: null,
+      streak: 0,
+      bestStreak: 0
+    },
+    playerTitle: 'Rookie',
+    titles: { rookie: true },
+    claimedRewards: {}
   },
 
   _data: null,
@@ -118,6 +144,18 @@ BR.Storage = {
       }
 
       data = migrated;
+    }
+
+    if (data.version < 4) {
+      if (!data.meta) data.meta = { level: 1, xp: 0, totalXP: 0 };
+      if (!data.missions) data.missions = { daily: {}, weekly: {} };
+      if (!data.statistics) data.statistics = { totalScore: 0, totalPowerUps: 0, totalCriticalHits: 0, totalExplosions: 0, totalLightningChains: 0, eliteWavesCleared: 0 };
+      if (!data.daily) data.daily = { lastDate: null, streak: 0, bestStreak: 0 };
+      if (!data.playerTitle) data.playerTitle = 'Rookie';
+      if (!data.titles) data.titles = { rookie: true };
+      if (!data.claimedRewards) data.claimedRewards = {};
+      if (!data.settings) data.settings = {};
+      if (data.settings.fullscreen === undefined) data.settings.fullscreen = false;
     }
 
     data.version = this._schemaVersion;

@@ -46,6 +46,10 @@ BR.Main = {
     BR.Particles.init();
     BR.Powerups.init();
     BR.Upgrades.init();
+    if (BR.NotificationManager) BR.NotificationManager.init();
+    if (BR.MetaProgression) { BR.MetaProgression.getLevel(); }
+    if (BR.MissionManager) BR.MissionManager.init();
+    if (BR.AchievementManager) BR.AchievementManager.checkAll();
     BR.UI.init();
     BR.Game.init();
 
@@ -71,7 +75,11 @@ BR.Main = {
     document.addEventListener('touchstart', resumeAudio);
     document.addEventListener('keydown', resumeAudio);
 
-    console.log('BRICK RUSH Phase 5 initialized!');
+    console.log('BRICK RUSH Phase 6 initialized!');
+
+    if (BR.UI && BR.UI.hideLoading) {
+      setTimeout(function() { BR.UI.hideLoading(); }, 1500);
+    }
   },
 
   initBackground: function (bgCanvas) {

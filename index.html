@@ -27,13 +27,19 @@
         <button id="btnPlay" class="btn btn-primary" aria-label="Start playing">PLAY</button>
         <button id="btnWorldMap" class="btn btn-secondary" aria-label="World Map">WORLD MAP</button>
         <button id="btnDaily" class="btn btn-secondary btn-daily" aria-label="Daily Challenge">DAILY CHALLENGE</button>
+        <button id="btnMissions" class="btn btn-secondary btn-missions" aria-label="Missions">MISSIONS <span id="missionBadge" class="menu-badge" hidden></span></button>
         <button id="btnUpgrades" class="btn btn-secondary" aria-label="Upgrades shop">UPGRADES</button>
         <button id="btnCollection" class="btn btn-secondary" aria-label="Collection">COLLECTION</button>
-        <button id="btnAchievements" class="btn btn-secondary" aria-label="View achievements">ACHIEVEMENTS</button>
+        <button id="btnProfile" class="btn btn-secondary" aria-label="Player profile">PROFILE</button>
+        <button id="btnAchievements" class="btn btn-secondary" aria-label="View achievements">ACHIEVEMENTS <span id="achieveBadge" class="menu-badge" hidden></span></button>
         <button id="btnStats" class="btn btn-secondary" aria-label="Statistics">STATISTICS</button>
         <button id="btnSettings" class="btn btn-secondary" aria-label="Open settings">SETTINGS</button>
       </div>
       <div class="menu-info">
+        <div class="menu-player-level">
+          <span class="menu-info-label">LEVEL</span>
+          <span id="menuPlayerLevel" class="menu-info-value menu-level-value">1</span>
+        </div>
         <div class="menu-best-score">
           <span class="menu-info-label">BEST</span>
           <span id="bestScoreDisplay" class="menu-info-value">0</span>
@@ -369,6 +375,51 @@
   <!-- Upgrade Notification -->
   <div id="upgradeNotification" class="upgrade-notification" style="display:none">UPGRADE COMPLETE</div>
 
+  <!-- Missions Hub -->
+  <div id="missionsOverlay" class="overlay" hidden>
+    <div class="overlay-container missions-container card">
+      <h2 class="overlay-title">MISSIONS</h2>
+      <div class="missions-tabs">
+        <button class="mission-tab active" data-tab="daily">DAILY</button>
+        <button class="mission-tab" data-tab="weekly">WEEKLY</button>
+        <button class="mission-tab" data-tab="achievements">ACHIEVEMENTS</button>
+      </div>
+      <div id="missionsContent" class="missions-content"></div>
+      <button id="btnMissionsBack" class="btn btn-secondary">BACK</button>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profileOverlay" class="overlay" hidden>
+    <div class="overlay-container profile-container card">
+      <h2 class="overlay-title">PROFILE</h2>
+      <div id="profileContent" class="profile-content"></div>
+      <button id="btnProfileBack" class="btn btn-secondary">BACK</button>
+    </div>
+  </div>
+
+  <!-- Level Up -->
+  <div id="levelUpOverlay" class="overlay" hidden>
+    <div class="levelup-container card">
+      <h2 class="levelup-title">LEVEL UP!</h2>
+      <div id="levelUpLevel" class="levelup-level"></div>
+      <div id="levelUpRewards" class="levelup-rewards"></div>
+      <button id="btnLevelUpContinue" class="btn btn-primary">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <h1 class="menu-logo title-glow">BRICK RUSH</h1>
+      <p class="loading-text">LOADING...</p>
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Notification Container -->
+  <div id="notificationContainer" aria-live="polite"></div>
+
   <div id="coinAnim" aria-hidden="true"></div>
 
   <a href="https://github.com/fahmikip" target="_blank" class="watermark">github.com/fahmikip</a>
@@ -395,6 +446,11 @@
   <script src="./js/bossConfig.js"></script>
   <script src="./js/worldManager.js"></script>
   <script src="./js/eliteManager.js"></script>
+  <script src="./js/metaProgression.js"></script>
+  <script src="./js/notificationManager.js"></script>
+  <script src="./js/rewardQueue.js"></script>
+  <script src="./js/achievementManager.js"></script>
+  <script src="./js/missionManager.js"></script>
   <script src="./js/powerups.js"></script>
   <script src="./js/upgrades.js"></script>
   <script src="./js/runManager.js"></script>

@@ -122,6 +122,23 @@ BR.UI = {
       btnBossReplay: document.getElementById('btnBossReplay'),
       btnBossWorldMap: document.getElementById('btnBossWorldMap'),
       tokenBalance: document.getElementById('tokenBalance'),
+      btnMissions: document.getElementById('btnMissions'),
+      missionBadge: document.getElementById('missionBadge'),
+      btnMissionsBack: document.getElementById('btnMissionsBack'),
+      missionsOverlay: document.getElementById('missionsOverlay'),
+      missionsContent: document.getElementById('missionsContent'),
+      btnProfile: document.getElementById('btnProfile'),
+      btnProfileBack: document.getElementById('btnProfileBack'),
+      profileOverlay: document.getElementById('profileOverlay'),
+      profileContent: document.getElementById('profileContent'),
+      btnLevelUpContinue: document.getElementById('btnLevelUpContinue'),
+      levelUpOverlay: document.getElementById('levelUpOverlay'),
+      levelUpLevel: document.getElementById('levelUpLevel'),
+      levelUpRewards: document.getElementById('levelUpRewards'),
+      achieveBadge: document.getElementById('achieveBadge'),
+      menuPlayerLevel: document.getElementById('menuPlayerLevel'),
+      loadingScreen: document.getElementById('loadingScreen'),
+      notificationContainer: document.getElementById('notificationContainer'),
     };
 
     this._bindEvents();
@@ -383,6 +400,42 @@ BR.UI = {
       BR.Game?.quit();
       self.showWorldMap();
     });
+
+    this.elements.btnMissions?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('missions');
+    });
+
+    this.elements.btnMissionsBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnProfile?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('profile');
+    });
+
+    this.elements.btnProfileBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnLevelUpContinue?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      if (BR.MissionManager) BR.MissionManager.completeMissionCallback('levelup');
+      self.showScreen('game');
+    });
+
+    var missionTabs = document.querySelectorAll('.mission-tab');
+    for (var t = 0; t < missionTabs.length; t++) {
+      missionTabs[t].addEventListener('click', function () {
+        BR.Audio?.buttonClick();
+        var tab = this.getAttribute('data-tab');
+        self._missionsTab = tab;
+        self.renderMissions(tab);
+      });
+    }
   },
 
   showScreen(screen) {
@@ -394,7 +447,8 @@ BR.UI = {
       'achievementsOverlay', 'shopOverlay', 'victoryOverlay',
       'runSummaryOverlay', 'collectionOverlay', 'statsOverlay',
       'dailyOverlay', 'buildOverlay', 'permShopOverlay',
-      'worldMapOverlay', 'eliteAnnounce', 'bossResultOverlay'
+      'worldMapOverlay', 'eliteAnnounce', 'bossResultOverlay',
+      'missionsOverlay', 'profileOverlay', 'levelUpOverlay'
     ];
 
     for (var i = 0; i < overlayIds.length; i++) {
@@ -471,6 +525,18 @@ BR.UI = {
         break;
       case 'boss_result':
         shown.push('bossResultOverlay');
+        break;
+      case 'missions':
+        shown.push('missionsOverlay');
+        this._missionsTab = this._missionsTab || 'daily';
+        this.renderMissions(this._missionsTab);
+        break;
+      case 'profile':
+        shown.push('profileOverlay');
+        this.renderProfile();
+        break;
+      case 'levelup':
+        shown.push('levelUpOverlay');
         break;
     }
 
@@ -784,15 +850,6 @@ BR.UI = {
     }
   },
 
-  _formatTime(ms) {
-    var s = Math.floor(ms / 1000);
-    var m = Math.floor(s / 60);
-    var h = Math.floor(m / 60);
-    if (h > 0) return h + 'h ' + (m % 60) + 'm';
-    if (m > 0) return m + 'm ' + (s % 60) + 's';
-    return s + 's';
-  },
-
   _countAchievements(achs) {
     if (!achs) return 0;
     var c = 0;
@@ -804,8 +861,9 @@ BR.UI = {
     var data = BR.DailyChallenge.getData();
     if (this.elements.dailyTheme) {
       this.elements.dailyTheme.innerHTML =
-        '<div class="daily-theme-icon" style="color:' + data.theme.color + '">' + data.theme.icon + '</div>' +
-        '<div class="daily-theme-name">' + data.theme.name + '</div>';
+        '<div class="daily-theme-icon" style="color:' + data.modifier.color + '">' + data.modifier.icon + '</div>' +
+        '<div class="daily-theme-name">' + data.modifier.name + '</div>' +
+        '<div class="daily-theme-desc">' + data.modifier.desc + '</div>';
     }
     if (this.elements.dailyModifiers) {
       this.elements.dailyModifiers.innerHTML =
@@ -887,9 +945,26 @@ BR.UI = {
     if (!list) return;
 
     list.innerHTML = '';
+
+    if (BR.AchievementManager) {
+      var achs = BR.AchievementManager.getAll();
+      for (var i = 0; i < achs.length; i++) {
+        var ach = achs[i];
+        var item = document.createElement('div');
+        item.className = 'achievement-item' + (ach.unlocked ? ' unlocked' : '');
+        item.innerHTML =
+          '<div class="achievement-icon">' + (ach.unlocked ? (ach.icon || '🏆') : '🔒') + '</div>' +
+          '<div class="achievement-info">' +
+            '<div class="achievement-name">' + ach.name + '</div>' +
+            '<div class="achievement-desc">' + (ach.desc || ach.description || '') + '</div>' +
+          '</div>';
+        list.appendChild(item);
+      }
+      return;
+    }
+
     var saveData = BR.Storage.load();
     var achievements = saveData.achievements || {};
-
     var allAchievements = [
       { id: 'first_break', name: 'FIRST BREAK', desc: 'Break your first brick', icon: '🧱' },
       { id: 'combo_master', name: 'COMBO MASTER', desc: 'Reach combo x50', icon: '⚡' },
@@ -941,6 +1016,8 @@ BR.UI = {
     if (this.elements.tokenBalance) {
       this.elements.tokenBalance.textContent = (saveData.coreTokens || 0).toLocaleString();
     }
+    this.updateMenuBadges();
+    this.updateMenuPlayerLevel();
   },
 
   shake(intensity, duration) {
@@ -1049,5 +1126,246 @@ BR.UI = {
     if (this.elements.tokenBalance) {
       this.elements.tokenBalance.textContent = BR.WorldManager ? BR.WorldManager.getCoreTokens() : 0;
     }
+  },
+
+  updateMenuBadges() {
+    var missionBadge = this.elements.missionBadge;
+    if (missionBadge && BR.MissionManager) {
+      var unclaimed = BR.MissionManager.getUnclaimedCount();
+      if (unclaimed > 0) {
+        missionBadge.hidden = false;
+        missionBadge.textContent = unclaimed;
+      } else {
+        missionBadge.hidden = true;
+      }
+    }
+
+    var achieveBadge = this.elements.achieveBadge;
+    if (achieveBadge && BR.AchievementManager) {
+      var unclaimedA = BR.AchievementManager.getUnclaimedCount();
+      if (unclaimedA > 0) {
+        achieveBadge.hidden = false;
+        achieveBadge.textContent = unclaimedA;
+      } else {
+        achieveBadge.hidden = true;
+      }
+    }
+  },
+
+  updateMenuPlayerLevel() {
+    if (this.elements.menuPlayerLevel && BR.MetaProgression) {
+      var level = BR.MetaProgression.getLevel();
+      this.elements.menuPlayerLevel.textContent = level;
+    }
+  },
+
+  showLoading() {
+    var el = this.elements.loadingScreen;
+    if (el) {
+      el.classList.remove('hidden');
+      el.style.display = 'flex';
+    }
+  },
+
+  hideLoading() {
+    var el = this.elements.loadingScreen;
+    if (el) {
+      el.classList.add('hidden');
+      setTimeout(function () {
+        el.style.display = 'none';
+      }, 500);
+    }
+  },
+
+  renderMissions(tab) {
+    var content = this.elements.missionsContent;
+    if (!content || !BR.MissionManager || !BR.AchievementManager) return;
+
+    var tabs = document.querySelectorAll('.mission-tab');
+    for (var t = 0; t < tabs.length; t++) {
+      tabs[t].classList.toggle('active', tabs[t].getAttribute('data-tab') === tab);
+    }
+
+    if (tab === 'daily') {
+      var missions = BR.MissionManager.getMissions('daily');
+      content.innerHTML = this._renderMissionList(missions);
+      this._bindMissionClaims(content);
+    } else if (tab === 'weekly') {
+      var missions = BR.MissionManager.getMissions('weekly');
+      content.innerHTML = this._renderMissionList(missions);
+      this._bindMissionClaims(content);
+    } else if (tab === 'achievements') {
+      var achs = BR.AchievementManager.getAll();
+      content.innerHTML = this._renderAchievementList(achs);
+      this._bindAchievementClaims(content);
+    }
+  },
+
+  _renderMissionList(missions) {
+    if (!missions || missions.length === 0) {
+      return '<div style="text-align:center;padding:40px 0;color:var(--text-secondary);font-size:0.75rem;">NO MISSIONS AVAILABLE</div>';
+    }
+    var html = '';
+    for (var i = 0; i < missions.length; i++) {
+      var m = missions[i];
+      var pct = Math.min(100, Math.round((m.progress / m.target) * 100));
+      var isClaimed = BR.MissionManager.isClaimed(m.id);
+      var isComplete = pct >= 100;
+      var cls = isClaimed ? 'claimed' : (isComplete ? 'completed' : '');
+
+      html += '<div class="mission-item ' + cls + '" data-mission-id="' + m.id + '">';
+      html += '<div class="mission-item-header">';
+      html += '<span class="mission-item-title">' + (m.title || m.name || m.description) + '</span>';
+      html += '<span class="mission-item-reward">' + m.reward.coins + ' Coins + ' + m.reward.xp + ' XP</span>';
+      html += '</div>';
+      html += '<div class="mission-progress-bar"><div class="mission-progress-fill' + (isComplete ? ' complete' : '') + '" style="width:' + pct + '%"></div></div>';
+      html += '<div class="mission-progress-text">' + m.progress + ' / ' + m.target + '</div>';
+
+      if (isClaimed) {
+        html += '<span class="mission-claimed">✓ CLAIMED</span>';
+      } else if (isComplete) {
+        html += '<button class="mission-claim-btn" data-mission="' + m.id + '">CLAIM</button>';
+      }
+      html += '</div>';
+    }
+    return html;
+  },
+
+  _bindMissionClaims(container) {
+    var self = this;
+    var btns = container.querySelectorAll('.mission-claim-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        BR.Audio?.buttonClick();
+        var id = this.getAttribute('data-mission');
+        var mission = BR.MissionManager.claimMission(id);
+        if (mission && mission.reward) {
+          var coins = mission.reward.coins || 0;
+          var xp = mission.reward.xp || 0;
+          if (coins) BR.Storage.addCoins(coins);
+          if (xp && BR.MetaProgression) BR.MetaProgression.addXP(xp);
+          if (BR.NotificationManager) {
+            BR.NotificationManager.mission('Mission Complete!', '+' + coins + ' Coins + ' + xp + ' XP');
+          }
+        }
+        self.renderMissions(self._missionsTab || 'daily');
+        self.updateMenuInfo();
+      });
+    }
+  },
+
+  _renderAchievementList(achs) {
+    if (!achs || achs.length === 0) {
+      return '<div style="text-align:center;padding:40px 0;color:var(--text-secondary);font-size:0.75rem;">NO ACHIEVEMENTS YET</div>';
+    }
+    var html = '';
+    for (var i = 0; i < achs.length; i++) {
+      var a = achs[i];
+      var isClaimed = BR.AchievementManager.isClaimed(a.id);
+      var isUnlocked = a.unlocked;
+      var cls = isClaimed ? 'claimed' : (isUnlocked ? 'completed' : '');
+
+      html += '<div class="mission-item ' + cls + '" data-ach-id="' + a.id + '">';
+      html += '<div class="mission-item-header">';
+      html += '<span class="mission-item-title">' + (a.icon || '🏆') + ' ' + a.name + '</span>';
+      html += '<span class="mission-item-reward">' + (a.reward?.coins || 0) + ' Coins + ' + (a.reward?.xp || 0) + ' XP</span>';
+      html += '</div>';
+      html += '<div class="mission-progress-text">' + (a.desc || a.description || '') + '</div>';
+
+      if (isClaimed) {
+        html += '<span class="mission-claimed">✓ CLAIMED</span>';
+      } else if (isUnlocked) {
+        html += '<button class="mission-claim-btn" data-ach="' + a.id + '">CLAIM</button>';
+      }
+      html += '</div>';
+    }
+    return html;
+  },
+
+  _bindAchievementClaims(container) {
+    var self = this;
+    var btns = container.querySelectorAll('[data-ach]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        BR.Audio?.buttonClick();
+        var id = this.getAttribute('data-ach');
+        var reward = BR.AchievementManager.claimAchievement(id);
+        if (reward) {
+          BR.Storage.addCoins(reward.coins);
+          if (BR.MetaProgression) BR.MetaProgression.addXP(reward.xp);
+          if (BR.NotificationManager) {
+            BR.NotificationManager.achievement('Achievement Unlocked!', '+' + reward.coins + ' Coins + ' + reward.xp + ' XP');
+          }
+        }
+        self.renderMissions(self._missionsTab || 'achievements');
+        self.updateMenuInfo();
+      });
+    }
+  },
+
+  renderProfile() {
+    var content = this.elements.profileContent;
+    if (!content || !BR.MetaProgression) return;
+
+    var level = BR.MetaProgression.getLevel();
+    var xp = BR.MetaProgression.getXP();
+    var xpForNext = BR.MetaProgression.getXPForNextLevel();
+    var xpForCurrent = BR.MetaProgression.getXPForLevel(level);
+    var xpProgress = xp - xpForCurrent;
+    var xpNeeded = xpForNext - xpForCurrent;
+    var pct = xpNeeded > 0 ? Math.round((xpProgress / xpNeeded) * 100) : 0;
+
+    var stats = BR.MetaProgression.getStats();
+
+    var html = '';
+    html += '<div class="profile-header">';
+    html += '<div class="profile-title">' + (BR.Storage.get('playerTitle') || 'BRICK BREAKER') + '</div>';
+    html += '<div class="profile-level-display">LEVEL ' + level + '</div>';
+    html += '<div class="profile-xp-bar"><div class="profile-xp-fill" style="width:' + pct + '%"></div></div>';
+    html += '<div class="profile-xp-text">' + xpProgress + ' / ' + xpNeeded + ' XP</div>';
+    html += '</div>';
+
+    html += '<div class="profile-stats-grid">';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">TOTAL PLAY TIME</div><div class="profile-stat-value">' + this._formatTime(stats.totalPlayTime || 0) + '</div></div>';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">TOTAL SCORE</div><div class="profile-stat-value">' + (stats.totalScore || 0).toLocaleString() + '</div></div>';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">BRICKS DESTROYED</div><div class="profile-stat-value">' + (stats.totalBricksDestroyed || 0).toLocaleString() + '</div></div>';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">HIGHEST COMBO</div><div class="profile-stat-value">' + (stats.highestCombo || 0) + 'x</div></div>';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">TOTAL RUNS</div><div class="profile-stat-value">' + (stats.totalRuns || 0) + '</div></div>';
+    html += '<div class="profile-stat-card"><div class="profile-stat-label">HIGHEST LEVEL</div><div class="profile-stat-value">' + (stats.highestLevel || 0) + '</div></div>';
+    html += '</div>';
+
+    var dailyStreak = BR.DailyChallenge ? BR.DailyChallenge.getStreak() : 0;
+    if (dailyStreak > 0) {
+      html += '<div class="profile-stat-card" style="margin-top:12px"><div class="profile-stat-label">DAILY STREAK</div><div class="profile-stat-value">' + dailyStreak + ' DAY' + (dailyStreak > 1 ? 'S' : '') + '</div></div>';
+    }
+
+    content.innerHTML = html;
+  },
+
+  showLevelUp(level, rewards) {
+    if (this.elements.levelUpLevel) {
+      this.elements.levelUpLevel.textContent = 'LEVEL ' + level;
+    }
+    if (this.elements.levelUpRewards) {
+      var html = '';
+      if (rewards && rewards.length > 0) {
+        for (var i = 0; i < rewards.length; i++) {
+          html += '<div class="levelup-reward">' + rewards[i] + '</div>';
+        }
+      }
+      this.elements.levelUpRewards.innerHTML = html;
+    }
+    this.showScreen('levelup');
+    BR.Audio?.levelUp();
+    BR.Juice?.levelUp();
+  },
+
+  _formatTime(ms) {
+    var seconds = Math.floor(ms / 1000);
+    var minutes = Math.floor(seconds / 60);
+    var hours = Math.floor(minutes / 60);
+    if (hours > 0) return hours + 'h ' + (minutes % 60) + 'm';
+    if (minutes > 0) return minutes + 'm ' + (seconds % 60) + 's';
+    return seconds + 's';
   }
 };

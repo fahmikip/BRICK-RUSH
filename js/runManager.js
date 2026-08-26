@@ -114,7 +114,29 @@ BR.RunManager = {
 
     var earned = BR.Storage.addCoins(result.coins);
 
+    var bossesDefeated = this.state.bossesDefeated || 0;
+    BR.Storage.set('bossesDefeated', (save.bossesDefeated || 0) + bossesDefeated);
+
+    if (bossesDefeated > 0 && BR.BossManager) {
+      var bossDefeated = save.defeatedBosses || {};
+      var defeated = this.state.bossesDefeatedList || [];
+      for (var b = 0; b < defeated.length; b++) {
+        bossDefeated[defeated[b]] = true;
+      }
+      BR.Storage.set('defeatedBosses', bossDefeated);
+    }
+
+    var stats = save.statistics || {};
+    stats.totalScore = (stats.totalScore || 0) + result.score;
+    BR.Storage._data.statistics = stats;
+
     BR.UnlockManager.checkAll();
+    if (BR.AchievementManager) BR.AchievementManager.checkAll();
+    if (BR.MissionManager) {
+      BR.MissionManager.handleEvent('scoreEarned', { score: result.score });
+      BR.MissionManager.handleEvent('coinEarned', { amount: result.coins });
+    }
+
     this._saveDailyScore(result);
 
     this.state = null;

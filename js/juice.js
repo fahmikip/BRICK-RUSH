@@ -145,5 +145,24 @@ BR.Juice = {
     this.shake(3, 0.5);
     this.flash('#ff0044', 0.08);
     this.vibrate([50, 30, 50, 30, 50]);
+  },
+
+  levelUp() {
+    this.shake(10, 0.4);
+    this.flash('#ffcc00', 0.2);
+    this.slowMotion(0.5, 0.3);
+    this.vibrate([50, 30, 50, 30, 100]);
+  },
+
+  missionComplete() {
+    this.shake(6, 0.2);
+    this.flash('#00ff88', 0.15);
+    this.vibrate([30, 20, 30]);
+  },
+
+  achievementPopup() {
+    this.shake(8, 0.3);
+    this.flash('#ffcc00', 0.1);
+    this.vibrate([40, 20, 40]);
   }
 };

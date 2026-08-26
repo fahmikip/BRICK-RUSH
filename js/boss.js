@@ -999,6 +999,11 @@ BR.BossManager = {
     BR.Storage.set('bossesDefeated', (save.bossesDefeated || 0) + 1);
     BR.Storage.set('totalBricksDestroyed', save.totalBricksDestroyed || 0);
 
+    var bossId = this.bossId || 'unknown';
+    var defeatedBosses = save.defeatedBosses || {};
+    defeatedBosses[bossId] = true;
+    BR.Storage.set('defeatedBosses', defeatedBosses);
+
     if (BR.Game) BR.Game.state = 'boss_result';
     if (BR.UI) BR.UI.showBossResult(this.currentBoss, rewards, duration, this.bestCombo);
   },

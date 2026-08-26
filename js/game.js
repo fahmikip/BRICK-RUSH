@@ -611,6 +611,22 @@ BR.Game = {
         this._unlockAchievement('first_break');
       }
 
+      if (BR.MissionManager) BR.MissionManager.handleEvent('brickDestroyed', { amount: 1 });
+      if (isCrit && BR.MissionManager) BR.MissionManager.handleEvent('criticalHit', { amount: 1 });
+      if (isCrit) {
+        var stats = BR.Storage._data.statistics || {};
+        stats.totalCriticalHits = (stats.totalCriticalHits || 0) + 1;
+        BR.Storage._data.statistics = stats;
+      }
+      if (BR.MissionManager && BR.Combo.count > 0) {
+        BR.MissionManager.handleEvent('comboReached', { combo: BR.Combo.count });
+      }
+
+      if (BR.MetaProgression) {
+        var brickXP = isCrit ? BR.MetaProgression.XP_VALUES.criticalHit : BR.MetaProgression.XP_VALUES.brick;
+        BR.MetaProgression.addXP(brickXP);
+      }
+
       this._checkWaveComplete();
     }
 
@@ -635,6 +651,9 @@ BR.Game = {
     BR.Level.wave = run.wave;
 
     if (waveType === 'level_complete') {
+      if (BR.MissionManager) BR.MissionManager.handleEvent('levelCompleted', {});
+      var xpResult = BR.MetaProgression ? BR.MetaProgression.addXP(BR.MetaProgression.XP_VALUES.levelComplete) : null;
+
       var choices = BR.UpgradeManager.getChoices(3);
       if (choices.length > 0) {
         this._pendingUpgradeChoices = choices;
@@ -645,12 +664,15 @@ BR.Game = {
       BR.Level.level = run.level;
       BR.Level.wave = run.wave;
       this._loadWave();
-    } else {
-      var choices = BR.UpgradeManager.getChoices(3);
-      if (choices.length > 0) {
-        this._pendingUpgradeChoices = choices;
+    } else if (waveType === 'elite') {
+      if (BR.MissionManager) BR.MissionManager.handleEvent('eliteDefeated', {});
+      var xpResult2 = BR.MetaProgression ? BR.MetaProgression.addXP(BR.MetaProgression.XP_VALUES.elite) : null;
+
+      var choices2 = BR.UpgradeManager.getChoices(3);
+      if (choices2.length > 0) {
+        this._pendingUpgradeChoices = choices2;
         this.state = 'upgrading';
-        BR.UI.showUpgradeSelection(choices);
+        BR.UI.showUpgradeSelection(choices2);
       } else {
         this._loadWave();
       }
@@ -714,8 +736,11 @@ BR.Game = {
     var scoreGain = BR.RunManager.addScore(500);
     var coinReward = 100 + run.level * 50;
     var coinGain = BR.RunManager.addCoins(coinReward);
+    var bossId = this.boss ? this.boss.id : 'unknown';
     this.boss = null;
     BR.RunManager.state.bossesDefeated++;
+    if (!BR.RunManager.state.bossesDefeatedList) BR.RunManager.state.bossesDefeatedList = [];
+    BR.RunManager.state.bossesDefeatedList.push(bossId);
     this._unlockAchievement('boss_slayer');
     BR.UI.hideBossBar();
     setTimeout(function() {
@@ -732,6 +757,14 @@ BR.Game = {
     run.currentArea = BR.Level.currentArea;
     this._bossEncounterArea = BR.Level.currentArea;
     BR.Storage.set('currentArea', BR.Level.currentArea);
+
+    if (BR.MissionManager) BR.MissionManager.handleEvent('bossDefeated', {});
+    if (BR.MissionManager) BR.MissionManager.handleEvent('levelCompleted', {});
+    if (BR.MetaProgression) {
+      var levelUp = BR.MetaProgression.addXP(BR.MetaProgression.XP_VALUES.boss);
+      if (levelUp) BR.MetaProgression.grantLevelUpRewards(levelUp.newLevel);
+    }
+
     if (result === 'area_unlock') {
       var areas = BR.Storage.get('unlockedAreas') || [0];
       if (areas.indexOf(BR.Level.currentArea) === -1) {
@@ -857,8 +890,12 @@ BR.Game = {
     if (BR.BossAttack) BR.BossAttack.clear();
     if (BR.EliteManager) BR.EliteManager.clear();
 
+    if (BR.MissionManager) BR.MissionManager.handleEvent('playTime', { seconds: Math.floor((performance.now() - (BR.RunManager.getState().startTime || performance.now())) / 1000) });
+
     var endResult = BR.RunManager.endRun();
     if (!endResult) return;
+
+    if (BR.AchievementManager) BR.AchievementManager.checkAll();
 
     this.state = 'run_summary';
     BR.UI.showRunSummary(endResult);

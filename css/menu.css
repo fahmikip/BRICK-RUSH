@@ -1223,3 +1223,438 @@
   width: 100%;
   max-width: 240px;
 }
+
+/* ============================================
+   Menu Badges
+   ============================================ */
+.menu-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-pink);
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
+  animation: pulse 1s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255, 0, 170, 0.6);
+}
+
+.menu-badge[hidden] {
+  display: none;
+}
+
+.menu-player-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-level-value {
+  color: var(--accent-neon);
+}
+
+/* ============================================
+   Notifications
+   ============================================ */
+#notificationContainer {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  max-width: 320px;
+}
+
+.notification-toast {
+  background: rgba(10, 10, 26, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  pointer-events: auto;
+  border-left: 3px solid var(--accent-neon);
+}
+
+.notification-toast.notification-achievement {
+  border-left-color: var(--accent-yellow);
+}
+
+.notification-toast.notification-mission {
+  border-left-color: var(--accent-green);
+}
+
+.notification-toast.notification-levelup {
+  border-left-color: var(--accent-pink);
+}
+
+.notification-toast.notification-unlock {
+  border-left-color: var(--accent-neon);
+}
+
+.notification-toast.notification-reward {
+  border-left-color: var(--accent-yellow);
+}
+
+.notification-toast.notification-streak {
+  border-left-color: #ff6600;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.notification-icon {
+  font-size: 1rem;
+}
+
+.notification-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.notification-message {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.notification-reward {
+  font-size: 0.65rem;
+  color: var(--accent-yellow);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ============================================
+   Missions Hub
+   ============================================ */
+.missions-container {
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.missions-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.mission-tab {
+  padding: 8px 16px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-tab.active {
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+  border-color: var(--accent-neon);
+}
+
+.missions-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  min-height: 200px;
+}
+
+.mission-item {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.mission-item.completed {
+  border-color: var(--accent-green);
+  opacity: 0.8;
+}
+
+.mission-item.claimed {
+  opacity: 0.5;
+}
+
+.mission-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.mission-item-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mission-item-reward {
+  font-size: 0.6rem;
+  color: var(--accent-yellow);
+  font-weight: 600;
+}
+
+.mission-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-neon), var(--accent-green));
+  transition: width 0.3s ease;
+}
+
+.mission-progress-fill.complete {
+  background: var(--accent-green);
+}
+
+.mission-progress-text {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+}
+
+.mission-claim-btn {
+  display: inline-block;
+  padding: 6px 16px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--accent-green);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--accent-green);
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.2s ease;
+}
+
+.mission-claim-btn:hover {
+  background: var(--accent-green);
+  color: var(--bg-primary);
+}
+
+.mission-claimed {
+  font-size: 0.6rem;
+  color: var(--accent-green);
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* ============================================
+   Profile
+   ============================================ */
+.profile-container {
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent-yellow);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.profile-level-display {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent-neon);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+}
+
+.profile-xp-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-secondary);
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.profile-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-neon), var(--accent-pink));
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.profile-xp-text {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.profile-stat-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 12px;
+  text-align: center;
+}
+
+.profile-stat-label {
+  font-size: 0.5rem;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.profile-stat-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   Level Up
+   ============================================ */
+.levelup-container {
+  text-align: center;
+  padding: 40px 32px;
+  animation: scaleIn 0.4s ease;
+}
+
+.levelup-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--accent-yellow);
+  text-shadow: 0 0 20px rgba(255, 204, 0, 0.5), 0 0 40px rgba(255, 204, 0, 0.3);
+  margin-bottom: 12px;
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+.levelup-level {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--accent-neon);
+  text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+  margin-bottom: 20px;
+}
+
+.levelup-rewards {
+  margin-bottom: 24px;
+}
+
+.levelup-reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-yellow);
+}
+
+/* ============================================
+   Loading Screen
+   ============================================ */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  letter-spacing: 4px;
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 4px;
+  background: var(--bg-secondary);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.loading-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--accent-neon);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  animation: loadingProgress 1.5s ease forwards;
+}
+
+@keyframes loadingProgress {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  80% { width: 90%; }
+  100% { width: 100%; }
+}

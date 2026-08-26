@@ -105,6 +105,11 @@ BR.Powerups = {
   },
 
   _activate(type, game) {
+    if (BR.MissionManager) BR.MissionManager.handleEvent('powerUpCollected', { amount: 1 });
+    var stats = BR.Storage._data.statistics || {};
+    stats.totalPowerUps = (stats.totalPowerUps || 0) + 1;
+    BR.Storage._data.statistics = stats;
+
     if (type.duration === 0) {
       switch (type.id) {
         case 'multiball':
