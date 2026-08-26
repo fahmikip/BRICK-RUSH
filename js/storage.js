@@ -2,27 +2,45 @@ window.BR = window.BR || {};
 
 BR.Storage = {
   _key: 'brickrush_save',
+  _schemaVersion: 2,
 
   _defaults: {
+    version: 2,
     coins: 0,
     bestScore: 0,
     totalBricksDestroyed: 0,
     totalCoinsEarned: 0,
     highestWave: 0,
+    highestCombo: 0,
+    highestLevel: 0,
+    totalRuns: 0,
+    totalPlayTime: 0,
     bossesDefeated: 0,
     currentArea: 0,
     unlockedAreas: [0],
     permanentUpgrades: {
-      damage: 0,
-      paddleWidth: 0,
-      ballSpeed: 0,
-      coinMultiplier: 0,
-      critChance: 0,
-      powerupChance: 0
+      startingDamage: 0,
+      startingCritical: 0,
+      criticalDamage: 0,
+      startingPaddleWidth: 0,
+      paddleSpeed: 0,
+      startingShield: 0,
+      coinGain: 0,
+      scoreGain: 0,
+      rewardMultiplier: 0,
+      powerUpChance: 0,
+      powerUpDuration: 0,
+      startingBallSpeed: 0
     },
     achievements: {},
-    ballSkins: [0],
-    paddleSkins: [0],
+    unlocks: { area_1: true },
+    skins: {
+      balls: ['ball_default'],
+      paddles: ['paddle_default'],
+      activeBall: 'ball_default',
+      activePaddle: 'paddle_default'
+    },
+    dailyScores: {},
     settings: {
       music: true,
       sound: true,
@@ -38,8 +56,8 @@ BR.Storage = {
   },
 
   _deepMerge(target, source) {
-    const result = this._deepClone(target);
-    for (const key in source) {
+    var result = this._deepClone(target);
+    for (var key in source) {
       if (Object.prototype.hasOwnProperty.call(source, key)) {
         if (
           source[key] !== null &&
@@ -60,16 +78,51 @@ BR.Storage = {
     return result;
   },
 
+  _migrate(data) {
+    if (!data || typeof data !== 'object') return this._deepClone(this._defaults);
+
+    if (!data.version || data.version < 2) {
+      var migrated = this._deepClone(this._defaults);
+      if (data.coins !== undefined) migrated.coins = data.coins;
+      if (data.bestScore !== undefined) migrated.bestScore = data.bestScore;
+      if (data.totalBricksDestroyed !== undefined) migrated.totalBricksDestroyed = data.totalBricksDestroyed;
+      if (data.totalCoinsEarned !== undefined) migrated.totalCoinsEarned = data.totalCoinsEarned;
+      if (data.highestWave !== undefined) migrated.highestWave = data.highestWave;
+      if (data.bossesDefeated !== undefined) migrated.bossesDefeated = data.bossesDefeated;
+      if (data.currentArea !== undefined) migrated.currentArea = data.currentArea;
+      if (data.unlockedAreas !== undefined) migrated.unlockedAreas = data.unlockedAreas;
+      if (data.achievements !== undefined) migrated.achievements = data.achievements;
+      if (data.settings !== undefined) migrated.settings = data.settings;
+      if (data.ballSkins) migrated.skins.balls = data.ballSkins;
+      if (data.paddleSkins) migrated.skins.paddles = data.paddleSkins;
+
+      if (data.permanentUpgrades) {
+        var old = data.permanentUpgrades;
+        if (old.damage !== undefined) migrated.permanentUpgrades.startingDamage = old.damage;
+        if (old.paddleWidth !== undefined) migrated.permanentUpgrades.startingPaddleWidth = old.paddleWidth;
+        if (old.ballSpeed !== undefined) migrated.permanentUpgrades.startingBallSpeed = old.ballSpeed;
+        if (old.coinMultiplier !== undefined) migrated.permanentUpgrades.coinGain = old.coinMultiplier;
+        if (old.critChance !== undefined) migrated.permanentUpgrades.startingCritical = old.critChance;
+        if (old.powerupChance !== undefined) migrated.permanentUpgrades.powerUpChance = old.powerupChance;
+      }
+
+      data = migrated;
+    }
+
+    data.version = this._schemaVersion;
+    return data;
+  },
+
   load() {
     try {
-      const raw = localStorage.getItem(this._key);
+      var raw = localStorage.getItem(this._key);
       if (raw === null) {
         this._data = this._deepClone(this._defaults);
         this.save();
         return this._data;
       }
 
-      let parsed;
+      var parsed;
       try {
         parsed = JSON.parse(raw);
       } catch (e) {
@@ -86,7 +139,9 @@ BR.Storage = {
         return this._data;
       }
 
+      parsed = this._migrate(parsed);
       this._data = this._deepMerge(this._defaults, parsed);
+      this.save();
     } catch (e) {
       console.error('BR.Storage: Failed to load save data:', e);
       this._data = this._deepClone(this._defaults);
@@ -96,7 +151,7 @@ BR.Storage = {
 
   save() {
     try {
-      const json = JSON.stringify(this._data);
+      var json = JSON.stringify(this._data);
       localStorage.setItem(this._key, json);
     } catch (e) {
       console.error('BR.Storage: Failed to save data:', e);
@@ -113,10 +168,10 @@ BR.Storage = {
       this.load();
     }
 
-    const parts = path.split('.');
-    let current = this._data;
+    var parts = path.split('.');
+    var current = this._data;
 
-    for (let i = 0; i < parts.length; i++) {
+    for (var i = 0; i < parts.length; i++) {
       if (current === null || current === undefined || typeof current !== 'object') {
         return undefined;
       }
@@ -131,11 +186,11 @@ BR.Storage = {
       this.load();
     }
 
-    const parts = path.split('.');
-    let current = this._data;
+    var parts = path.split('.');
+    var current = this._data;
 
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
+    for (var i = 0; i < parts.length - 1; i++) {
+      var part = parts[i];
       if (current[part] === undefined || current[part] === null || typeof current[part] !== 'object') {
         current[part] = {};
       }
@@ -147,8 +202,10 @@ BR.Storage = {
   },
 
   addCoins(amount) {
-    const multiplier = 1 + (this.get('permanentUpgrades.coinMultiplier') || 0) * 0.2;
-    const finalAmount = Math.floor(amount * multiplier);
+    amount = Math.max(0, Math.floor(amount));
+    var multiplier = 1 + (this.get('permanentUpgrades.coinGain') || 0) * 0.05;
+    var finalAmount = Math.floor(amount * multiplier);
+    finalAmount = Math.max(0, finalAmount);
 
     this.set('coins', (this.get('coins') || 0) + finalAmount);
     this.set('totalCoinsEarned', (this.get('totalCoinsEarned') || 0) + finalAmount);
@@ -156,21 +213,15 @@ BR.Storage = {
     return finalAmount;
   },
 
-  getUpgradeCost(type) {
-    const level = this.get('permanentUpgrades.' + type) || 0;
-    return Math.floor(50 * Math.pow(1.8, level));
+  spendCoins(amount) {
+    amount = Math.max(0, Math.floor(amount));
+    var coins = this.get('coins') || 0;
+    if (coins < amount) return false;
+    this.set('coins', coins - amount);
+    return true;
   },
 
-  buyUpgrade(type) {
-    const cost = this.getUpgradeCost(type);
-    const coins = this.get('coins') || 0;
-
-    if (coins < cost) {
-      return false;
-    }
-
-    this.set('coins', coins - cost);
-    this.set('permanentUpgrades.' + type, (this.get('permanentUpgrades.' + type) || 0) + 1);
-    return true;
+  canAfford(amount) {
+    return (this.get('coins') || 0) >= amount;
   }
 };

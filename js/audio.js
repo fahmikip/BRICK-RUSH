@@ -227,5 +227,44 @@ BR.Audio = {
     notes.forEach((freq, i) => {
       setTimeout(() => this._play(freq, 'sine', 0.15, 0.2), i * 60);
     });
+  },
+
+  upgradeSelect() {
+    this._play(880, 'sine', 0.08, 0.15);
+    setTimeout(() => this._play(1100, 'sine', 0.1, 0.15), 50);
+  },
+
+  upgradePurchased() {
+    const notes = [660, 880, 1100, 1320];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.12, 0.2), i * 60);
+    });
+  },
+
+  synergyActivate() {
+    const notes = [523, 659, 784, 1047, 1319];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.18, 0.25), i * 50);
+    });
+  },
+
+  unlockSound() {
+    const notes = [784, 988, 1175, 1568];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'square', 0.2, 0.2), i * 100);
+    });
+  },
+
+  runComplete() {
+    const notes = [523, 659, 784, 1047, 1319, 1568];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.25, 0.2), i * 80);
+    });
+  },
+
+  dailyStart() {
+    this._play(440, 'sine', 0.15, 0.2);
+    setTimeout(() => this._play(660, 'sine', 0.15, 0.2), 100);
+    setTimeout(() => this._play(880, 'sine', 0.2, 0.25), 200);
   }
 };

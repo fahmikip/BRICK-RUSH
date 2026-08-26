@@ -4,7 +4,7 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (typeof r === 'number') r = [r, r, r, r];
     if (!Array.isArray(r)) r = [5, 5, 5, 5];
-    const [tl, tr, br, bl] = r;
+    var tl = r[0], tr = r[1], br = r[2], bl = r[3];
     this.moveTo(x + tl, y);
     this.lineTo(x + w - tr, y);
     this.quadraticCurveTo(x + w, y, x + w, y + tr);
@@ -27,6 +27,9 @@ BR.Main = {
 
   init: function () {
     BR.Storage.load();
+    BR.PermanentUpgradeManager.init();
+    BR.UnlockManager.init();
+    BR.CollectionManager.init();
 
     var params = new URLSearchParams(window.location.search);
     if (params.get('debug') === 'true') {
@@ -37,7 +40,6 @@ BR.Main = {
     var bgCanvas = document.getElementById('bgCanvas');
 
     BR.Audio.init();
-
     if (canvas) BR.Input.init(canvas);
 
     BR.Particles.init();
@@ -68,7 +70,7 @@ BR.Main = {
     document.addEventListener('touchstart', resumeAudio);
     document.addEventListener('keydown', resumeAudio);
 
-    console.log('BRICK RUSH initialized!');
+    console.log('BRICK RUSH Phase 4 initialized!');
   },
 
   initBackground: function (bgCanvas) {

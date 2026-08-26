@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
@@ -13,13 +13,10 @@
 </head>
 <body>
 
-  <!-- Background Particles Canvas -->
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
-
-  <!-- Game Canvas -->
   <canvas id="gameCanvas" aria-label="Brick Rush game area"></canvas>
 
-  <!-- Main Menu Overlay -->
+  <!-- Main Menu -->
   <div id="mainMenu" class="overlay" role="main">
     <div class="menu-container card">
       <div class="menu-logo-wrapper">
@@ -28,8 +25,11 @@
       </div>
       <div class="menu-buttons">
         <button id="btnPlay" class="btn btn-primary" aria-label="Start playing">PLAY</button>
-        <button id="btnUpgrades" class="btn btn-secondary" aria-label="Open upgrades shop">UPGRADES</button>
+        <button id="btnDaily" class="btn btn-secondary btn-daily" aria-label="Daily Challenge">DAILY CHALLENGE</button>
+        <button id="btnUpgrades" class="btn btn-secondary" aria-label="Upgrades shop">UPGRADES</button>
+        <button id="btnCollection" class="btn btn-secondary" aria-label="Collection">COLLECTION</button>
         <button id="btnAchievements" class="btn btn-secondary" aria-label="View achievements">ACHIEVEMENTS</button>
+        <button id="btnStats" class="btn btn-secondary" aria-label="Statistics">STATISTICS</button>
         <button id="btnSettings" class="btn btn-secondary" aria-label="Open settings">SETTINGS</button>
       </div>
       <div class="menu-info">
@@ -69,6 +69,7 @@
         <span id="hudComboValue" class="hud-value">x2</span>
         <div class="combo-timer-bar"><div id="hudComboBar" class="combo-timer-fill"></div></div>
       </div>
+      <button id="btnBuild" class="btn-icon hud-pause" aria-label="View build" style="font-size:0.7rem">BUILD</button>
       <button id="btnPause" class="btn-icon hud-pause" aria-label="Pause game">&#10073;&#10073;</button>
     </div>
   </div>
@@ -83,34 +84,19 @@
     </div>
   </div>
 
-  <!-- Upgrade Selection Overlay -->
+  <!-- Upgrade Selection -->
   <div id="upgradeOverlay" class="overlay" hidden>
     <div class="upgrade-container">
       <h2 class="overlay-title title-glow">CHOOSE YOUR UPGRADE</h2>
       <div class="upgrade-choices">
-        <button id="upgrade1" class="upgrade-card card" aria-label="Upgrade choice 1">
-          <div class="upgrade-icon" aria-hidden="true"></div>
-          <div class="upgrade-name"></div>
-          <div class="upgrade-desc"></div>
-          <div class="upgrade-level"></div>
-        </button>
-        <button id="upgrade2" class="upgrade-card card" aria-label="Upgrade choice 2">
-          <div class="upgrade-icon" aria-hidden="true"></div>
-          <div class="upgrade-name"></div>
-          <div class="upgrade-desc"></div>
-          <div class="upgrade-level"></div>
-        </button>
-        <button id="upgrade3" class="upgrade-card card" aria-label="Upgrade choice 3">
-          <div class="upgrade-icon" aria-hidden="true"></div>
-          <div class="upgrade-name"></div>
-          <div class="upgrade-desc"></div>
-          <div class="upgrade-level"></div>
-        </button>
+        <button id="upgrade1" class="upgrade-card card" aria-label="Upgrade choice 1"></button>
+        <button id="upgrade2" class="upgrade-card card" aria-label="Upgrade choice 2"></button>
+        <button id="upgrade3" class="upgrade-card card" aria-label="Upgrade choice 3"></button>
       </div>
     </div>
   </div>
 
-  <!-- Game Over Overlay -->
+  <!-- Game Over -->
   <div id="gameOverOverlay" class="overlay" hidden>
     <div class="gameover-container card">
       <h2 class="overlay-title title-glow gameover-title">RUN OVER</h2>
@@ -130,24 +116,58 @@
       </div>
       <div id="newHighScore" class="new-highscore" hidden>NEW HIGH SCORE!</div>
       <div class="gameover-buttons">
-        <button id="btnRetry" class="btn btn-primary" aria-label="Retry level">RETRY</button>
-        <button id="btnMenuGO" class="btn btn-secondary" aria-label="Back to menu">MENU</button>
+        <button id="btnRetry" class="btn btn-primary">RETRY</button>
+        <button id="btnShopGO" class="btn btn-secondary">UPGRADES</button>
+        <button id="btnMenuGO" class="btn btn-secondary">MENU</button>
       </div>
     </div>
   </div>
 
-  <!-- Pause Overlay -->
+  <!-- Run Summary -->
+  <div id="runSummaryOverlay" class="overlay" hidden>
+    <div class="gameover-container card">
+      <h2 class="overlay-title title-glow">RUN COMPLETE</h2>
+      <div id="summaryNewBest" class="new-highscore" hidden>NEW HIGH SCORE!</div>
+      <div class="gameover-stats">
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">SCORE</span>
+          <span id="summaryScore" class="gameover-stat-value">0</span>
+        </div>
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">BEST COMBO</span>
+          <span id="summaryBestCombo" class="gameover-stat-value">x0</span>
+        </div>
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">BRICKS</span>
+          <span id="summaryBricks" class="gameover-stat-value">0</span>
+        </div>
+        <div class="gameover-stat">
+          <span class="gameover-stat-label">COINS</span>
+          <span id="summaryCoins" class="gameover-stat-value">0</span>
+        </div>
+      </div>
+      <div id="summaryLevel" class="summary-level"></div>
+      <div id="summaryRewards" class="summary-rewards"></div>
+      <div class="gameover-buttons">
+        <button id="btnSummaryRetry" class="btn btn-primary">RETRY</button>
+        <button id="btnSummaryUpgrades" class="btn btn-secondary">UPGRADES</button>
+        <button id="btnSummaryMenu" class="btn btn-secondary">MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause -->
   <div id="pauseOverlay" class="overlay" hidden>
     <div class="pause-container card">
       <h2 class="overlay-title title-glow">PAUSED</h2>
       <div class="pause-buttons">
-        <button id="btnResume" class="btn btn-primary" aria-label="Resume game">RESUME</button>
-        <button id="btnQuit" class="btn btn-danger" aria-label="Quit to menu">QUIT</button>
+        <button id="btnResume" class="btn btn-primary">RESUME</button>
+        <button id="btnQuit" class="btn btn-danger">QUIT</button>
       </div>
     </div>
   </div>
 
-  <!-- Settings Overlay -->
+  <!-- Settings -->
   <div id="settingsOverlay" class="overlay" hidden>
     <div class="settings-container card">
       <h2 class="overlay-title title-glow">SETTINGS</h2>
@@ -172,63 +192,119 @@
         </div>
       </div>
       <div class="settings-actions">
-        <button id="btnReset" class="btn btn-danger" aria-label="Reset all progress">RESET PROGRESS</button>
-        <button id="btnSettingsBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+        <button id="btnReset" class="btn btn-danger">RESET ALL PROGRESS</button>
+        <button id="btnSettingsBack" class="btn btn-secondary">BACK</button>
       </div>
     </div>
   </div>
 
-  <!-- Achievements Overlay -->
+  <!-- Achievements -->
   <div id="achievementsOverlay" class="overlay" hidden>
     <div class="achievements-container card">
       <h2 class="overlay-title title-glow">ACHIEVEMENTS</h2>
       <div id="achievementList" class="achievement-list" role="list"></div>
-      <button id="btnAchBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+      <button id="btnAchBack" class="btn btn-secondary">BACK</button>
     </div>
   </div>
 
-  <!-- Upgrades / Shop Overlay -->
-  <div id="shopOverlay" class="overlay" hidden>
+  <!-- Permanent Upgrade Shop -->
+  <div id="permShopOverlay" class="overlay" hidden>
     <div class="shop-container card">
       <h2 class="overlay-title title-glow">UPGRADES</h2>
       <div class="shop-balance">
         <span class="coin-icon" aria-hidden="true">&#9679;</span>
-        <span id="shopCoinBalance" class="shop-coin-value">0</span>
+        <span id="permShopBalance" class="shop-coin-value">0</span>
       </div>
-      <div id="shopList" class="shop-list" role="list"></div>
-      <button id="btnShopBack" class="btn btn-secondary" aria-label="Back to menu">BACK</button>
+      <div id="permShopTabs" class="shop-tabs"></div>
+      <div id="permShopList" class="shop-list" role="list"></div>
+      <button id="btnPermShopBack" class="btn btn-secondary">BACK</button>
     </div>
   </div>
 
-  <!-- Victory Overlay -->
+  <!-- Collection -->
+  <div id="collectionOverlay" class="overlay" hidden>
+    <div class="shop-container card">
+      <h2 class="overlay-title title-glow">COLLECTION</h2>
+      <div id="collectionTabs" class="shop-tabs"></div>
+      <div id="collectionList" class="shop-list collection-grid" role="list"></div>
+      <button id="btnCollectionBack" class="btn btn-secondary">BACK</button>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div id="statsOverlay" class="overlay" hidden>
+    <div class="settings-container card">
+      <h2 class="overlay-title title-glow">STATISTICS</h2>
+      <div id="statsContent" class="stats-content"></div>
+      <button id="btnStatsBack" class="btn btn-secondary">BACK</button>
+    </div>
+  </div>
+
+  <!-- Daily Challenge -->
+  <div id="dailyOverlay" class="overlay" hidden>
+    <div class="settings-container card">
+      <h2 class="overlay-title title-glow">DAILY CHALLENGE</h2>
+      <div class="daily-info">
+        <div id="dailyTheme" class="daily-theme"></div>
+        <div id="dailyModifiers" class="daily-modifiers"></div>
+        <div id="dailyReward" class="daily-reward"></div>
+        <div id="dailyBest" class="daily-best"></div>
+        <div id="dailyStreak" class="daily-streak"></div>
+      </div>
+      <div class="settings-actions">
+        <button id="btnDailyPlay" class="btn btn-primary">PLAY</button>
+        <button id="btnDailyBack" class="btn btn-secondary">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build Panel -->
+  <div id="buildOverlay" class="overlay" hidden>
+    <div class="settings-container card">
+      <h2 class="overlay-title title-glow">CURRENT BUILD</h2>
+      <div id="buildStats" class="build-stats"></div>
+      <h3 class="build-section-title">UPGRADES</h3>
+      <div id="buildUpgrades" class="build-list"></div>
+      <h3 class="build-section-title">SYNERGIES</h3>
+      <div id="buildSynergies" class="build-list"></div>
+      <div class="settings-actions">
+        <button id="btnUpgradeShop" class="btn btn-secondary">UPGRADE SHOP</button>
+        <button id="btnBuildBack" class="btn btn-secondary">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Victory -->
   <div id="victoryOverlay" class="overlay" hidden>
     <div class="victory-container card">
       <h2 class="overlay-title title-glow victory-title">BOSS DEFEATED!</h2>
       <div class="victory-rewards" id="victoryRewards"></div>
-      <button id="btnContinue" class="btn btn-primary" aria-label="Continue to next level">CONTINUE</button>
+      <button id="btnContinue" class="btn btn-primary">CONTINUE</button>
     </div>
   </div>
 
-  <!-- Reset Confirmation Modal -->
+  <!-- Reset Modal -->
   <div id="resetModal" class="overlay modal-overlay" hidden>
     <div class="reset-modal card">
-      <p class="reset-message">Reset all progress?</p>
-      <p class="reset-warning">This cannot be undone.</p>
+      <p class="reset-message">ARE YOU SURE?</p>
+      <p class="reset-warning">All progress will be permanently deleted.</p>
       <div class="reset-buttons">
-        <button id="btnResetConfirm" class="btn btn-danger" aria-label="Confirm reset">RESET</button>
-        <button id="btnResetCancel" class="btn btn-secondary" aria-label="Cancel reset">CANCEL</button>
+        <button id="btnResetConfirm" class="btn btn-danger">RESET</button>
+        <button id="btnResetCancel" class="btn btn-secondary">CANCEL</button>
       </div>
     </div>
   </div>
 
-  <!-- Coin Animation Container -->
+  <!-- Upgrade Notification -->
+  <div id="upgradeNotification" class="upgrade-notification" style="display:none">UPGRADE COMPLETE</div>
+
   <div id="coinAnim" aria-hidden="true"></div>
 
-  <!-- Watermark -->
   <a href="https://github.com/fahmikip" target="_blank" class="watermark">github.com/fahmikip</a>
 
-  <!-- Scripts -->
+  <!-- Scripts (order matters) -->
   <script src="./js/storage.js"></script>
+  <script src="./js/seedRandom.js"></script>
   <script src="./js/audio.js"></script>
   <script src="./js/input.js"></script>
   <script src="./js/events.js"></script>
@@ -247,6 +323,13 @@
   <script src="./js/boss.js"></script>
   <script src="./js/powerups.js"></script>
   <script src="./js/upgrades.js"></script>
+  <script src="./js/runManager.js"></script>
+  <script src="./js/upgradeManager.js"></script>
+  <script src="./js/permanentUpgradeManager.js"></script>
+  <script src="./js/buildManager.js"></script>
+  <script src="./js/unlockManager.js"></script>
+  <script src="./js/collectionManager.js"></script>
+  <script src="./js/dailyChallenge.js"></script>
   <script src="./js/ui.js"></script>
   <script src="./js/game.js"></script>
   <script src="./js/main.js"></script>

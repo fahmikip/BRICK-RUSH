@@ -455,3 +455,464 @@
   box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
   animation: coinFly 0.8s ease forwards;
 }
+
+/* ============================================
+   Upgrade Rarity
+   ============================================ */
+.upgrade-rarity {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.rarity-common { color: #aaaaaa; }
+.rarity-rare { color: #4488ff; }
+.rarity-epic { color: #aa44ff; }
+.rarity-legendary { color: #ffcc00; text-shadow: 0 0 8px rgba(255, 204, 0, 0.5); }
+
+.rarity-border-common { border-color: #aaaaaa !important; }
+.rarity-border-rare { border-color: #4488ff !important; box-shadow: 0 0 12px rgba(68, 136, 255, 0.3); }
+.rarity-border-epic { border-color: #aa44ff !important; box-shadow: 0 0 15px rgba(170, 68, 255, 0.4); }
+.rarity-border-legendary {
+  border-color: #ffcc00 !important;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Shop Tabs
+   ============================================ */
+.shop-tabs {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.shop-tab {
+  padding: 6px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shop-tab.active {
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+  border-color: var(--accent-neon);
+}
+
+.shop-tab:hover:not(.active) {
+  border-color: var(--accent-neon);
+  color: var(--accent-neon);
+}
+
+/* ============================================
+   Upgrade Notification
+   ============================================ */
+.upgrade-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+  padding: 16px 32px;
+  border-radius: var(--radius);
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-shadow: none;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+}
+
+.upgrade-notification.show {
+  opacity: 1;
+  animation: scaleIn 0.3s ease;
+}
+
+/* ============================================
+   Run Summary
+   ============================================ */
+.summary-level {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.summary-rewards {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.summary-reward {
+  font-size: 0.85rem;
+  color: var(--accent-yellow);
+  padding: 4px 0;
+}
+
+/* ============================================
+   Collection
+   ============================================ */
+.collection-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.collection-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  flex: 1;
+}
+
+.collection-item:hover:not(.locked) {
+  border-color: var(--accent-neon);
+}
+
+.collection-item.locked {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.collection-item.active {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
+.collection-preview {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ball-preview {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.paddle-preview {
+  width: 40px;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.collection-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.collection-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.collection-desc {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.collection-locked {
+  font-size: 0.65rem;
+  color: var(--accent-red);
+}
+
+.collection-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent-green);
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   Daily Challenge
+   ============================================ */
+.daily-info {
+  margin-bottom: 24px;
+}
+
+.daily-theme {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.daily-theme-icon {
+  font-size: 2.5rem;
+  margin-bottom: 4px;
+}
+
+.daily-theme-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.daily-modifiers {
+  margin-bottom: 12px;
+}
+
+.daily-mod {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.daily-mod:last-child {
+  border-bottom: none;
+}
+
+.daily-reward {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-yellow);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.daily-best {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.daily-streak {
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  text-align: center;
+}
+
+.btn-daily {
+  border-color: var(--accent-yellow);
+  color: var(--accent-yellow);
+}
+
+.btn-daily:hover {
+  background: rgba(255, 204, 0, 0.1);
+}
+
+/* ============================================
+   Build Panel
+   ============================================ */
+.build-stats {
+  margin-bottom: 16px;
+}
+
+.build-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 0.8rem;
+}
+
+.build-stat-label {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.build-stat-value {
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.build-section-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 16px 0 8px 0;
+  text-align: center;
+}
+
+.build-list {
+  margin-bottom: 8px;
+}
+
+.build-upgrade-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.78rem;
+}
+
+.build-upgrade-icon {
+  font-size: 1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.build-upgrade-name {
+  flex: 1;
+}
+
+.build-upgrade-level {
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.build-synergy-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 0.8rem;
+}
+
+.build-synergy-name {
+  font-weight: 700;
+}
+
+.build-synergy-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.build-empty {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 12px;
+}
+
+.shop-item.maxed-text {
+  color: var(--accent-green);
+}
+
+.shop-item.locked {
+  opacity: 0.5;
+}
+
+.shop-item-level {
+  font-size: 0.65rem;
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ============================================
+   Upgrade Card Base
+   ============================================ */
+.upgrade-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 20px 14px;
+  min-width: 130px;
+  max-width: 180px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid var(--glass-border);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+}
+
+.upgrade-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glow-neon);
+}
+
+.upgrade-card:active {
+  transform: scale(0.95);
+}
+
+.upgrade-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.upgrade-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+.upgrade-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.upgrade-level {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.upgrade-choices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   Stats Panel
+   ============================================ */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   Too Expensive Indicator
+   ============================================ */
+.too-expensive {
+  color: var(--accent-red) !important;
+  opacity: 0.6;
+}

@@ -2,7 +2,6 @@ window.BR = window.BR || {};
 
 BR.UI = {
   currentScreen: 'menu',
-
   elements: {},
 
   init() {
@@ -12,6 +11,9 @@ BR.UI = {
       btnUpgrades: document.getElementById('btnUpgrades'),
       btnAchievements: document.getElementById('btnAchievements'),
       btnSettings: document.getElementById('btnSettings'),
+      btnDaily: document.getElementById('btnDaily'),
+      btnCollection: document.getElementById('btnCollection'),
+      btnStats: document.getElementById('btnStats'),
       bestScoreDisplay: document.getElementById('bestScoreDisplay'),
       coinBalance: document.getElementById('coinBalance'),
       bgCanvas: document.getElementById('bgCanvas'),
@@ -23,6 +25,7 @@ BR.UI = {
       hudCoins: document.getElementById('hudCoins'),
       hudCombo: document.getElementById('hudCombo'),
       btnPause: document.getElementById('btnPause'),
+      btnBuild: document.getElementById('btnBuild'),
       upgradeOverlay: document.getElementById('upgradeOverlay'),
       upgrade1: document.getElementById('upgrade1'),
       upgrade2: document.getElementById('upgrade2'),
@@ -37,6 +40,7 @@ BR.UI = {
       newHighScore: document.getElementById('newHighScore'),
       btnRetry: document.getElementById('btnRetry'),
       btnMenuGO: document.getElementById('btnMenuGO'),
+      btnShopGO: document.getElementById('btnShopGO'),
       pauseOverlay: document.getElementById('pauseOverlay'),
       btnResume: document.getElementById('btnResume'),
       btnQuit: document.getElementById('btnQuit'),
@@ -52,14 +56,53 @@ BR.UI = {
       shopOverlay: document.getElementById('shopOverlay'),
       shopList: document.getElementById('shopList'),
       btnShopBack: document.getElementById('btnShopBack'),
+      shopCoinBalance: document.getElementById('shopCoinBalance'),
+      shopTabs: document.getElementById('shopTabs'),
       victoryOverlay: document.getElementById('victoryOverlay'),
       victoryRewards: document.getElementById('victoryRewards'),
       btnContinue: document.getElementById('btnContinue'),
-      shopCoinBalance: document.getElementById('shopCoinBalance'),
       resetModal: document.getElementById('resetModal'),
       btnResetConfirm: document.getElementById('btnResetConfirm'),
       btnResetCancel: document.getElementById('btnResetCancel'),
       coinAnim: document.getElementById('coinAnim'),
+      runSummaryOverlay: document.getElementById('runSummaryOverlay'),
+      summaryScore: document.getElementById('summaryScore'),
+      summaryBestCombo: document.getElementById('summaryBestCombo'),
+      summaryBricks: document.getElementById('summaryBricks'),
+      summaryCoins: document.getElementById('summaryCoins'),
+      summaryLevel: document.getElementById('summaryLevel'),
+      summaryNewBest: document.getElementById('summaryNewBest'),
+      summaryRewards: document.getElementById('summaryRewards'),
+      btnSummaryRetry: document.getElementById('btnSummaryRetry'),
+      btnSummaryUpgrades: document.getElementById('btnSummaryUpgrades'),
+      btnSummaryMenu: document.getElementById('btnSummaryMenu'),
+      collectionOverlay: document.getElementById('collectionOverlay'),
+      collectionTabs: document.getElementById('collectionTabs'),
+      collectionList: document.getElementById('collectionList'),
+      btnCollectionBack: document.getElementById('btnCollectionBack'),
+      statsOverlay: document.getElementById('statsOverlay'),
+      statsContent: document.getElementById('statsContent'),
+      btnStatsBack: document.getElementById('btnStatsBack'),
+      dailyOverlay: document.getElementById('dailyOverlay'),
+      dailyTheme: document.getElementById('dailyTheme'),
+      dailyModifiers: document.getElementById('dailyModifiers'),
+      dailyReward: document.getElementById('dailyReward'),
+      dailyBest: document.getElementById('dailyBest'),
+      dailyStreak: document.getElementById('dailyStreak'),
+      btnDailyPlay: document.getElementById('btnDailyPlay'),
+      btnDailyBack: document.getElementById('btnDailyBack'),
+      buildOverlay: document.getElementById('buildOverlay'),
+      buildStats: document.getElementById('buildStats'),
+      buildUpgrades: document.getElementById('buildUpgrades'),
+      buildSynergies: document.getElementById('buildSynergies'),
+      btnBuildBack: document.getElementById('btnBuildBack'),
+      btnUpgradeShop: document.getElementById('btnUpgradeShop'),
+      permShopOverlay: document.getElementById('permShopOverlay'),
+      permShopList: document.getElementById('permShopList'),
+      permShopTabs: document.getElementById('permShopTabs'),
+      permShopBalance: document.getElementById('permShopBalance'),
+      btnPermShopBack: document.getElementById('btnPermShopBack'),
+      upgradeNotification: document.getElementById('upgradeNotification'),
     };
 
     this._bindEvents();
@@ -73,13 +116,13 @@ BR.UI = {
       BR.Audio?.resume();
       BR.Audio?.buttonClick();
       self.showScreen('game');
-      BR.Game?.start();
+      BR.Game?.start(false);
     });
 
     this.elements.btnUpgrades?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
-      self.showScreen('shop');
-      self.renderShop();
+      self.showScreen('permshop');
+      self.renderPermShop();
     });
 
     this.elements.btnAchievements?.addEventListener('click', function () {
@@ -92,6 +135,24 @@ BR.UI = {
       BR.Audio?.buttonClick();
       self.showScreen('settings');
       self.renderSettings();
+    });
+
+    this.elements.btnDaily?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('daily');
+      self.renderDaily();
+    });
+
+    this.elements.btnCollection?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('collection');
+      self.renderCollection('balls');
+    });
+
+    this.elements.btnStats?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('stats');
+      self.renderStats();
     });
 
     this.elements.btnPause?.addEventListener('click', function () {
@@ -115,10 +176,77 @@ BR.UI = {
     this.elements.btnRetry?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
       self.showScreen('game');
-      BR.Game?.start();
+      BR.Game?.start(false);
     });
 
     this.elements.btnMenuGO?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      BR.Game?.quit();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnShopGO?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('permshop');
+      self.renderPermShop();
+    });
+
+    this.elements.btnBuild?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('build');
+      self.renderBuild();
+    });
+
+    this.elements.btnBuildBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      if (BR.Game.state === 'playing' || BR.Game.state === 'boss') {
+        self.showScreen('game');
+      } else {
+        self.showScreen('menu');
+      }
+    });
+
+    this.elements.btnUpgradeShop?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('permshop');
+      self.renderPermShop();
+    });
+
+    this.elements.btnSummaryRetry?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('game');
+      BR.Game?.start(false);
+    });
+
+    this.elements.btnSummaryUpgrades?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('permshop');
+      self.renderPermShop();
+    });
+
+    this.elements.btnSummaryMenu?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnCollectionBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnStatsBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnDailyPlay?.addEventListener('click', function () {
+      BR.Audio?.resume();
+      BR.Audio?.buttonClick();
+      self.showScreen('game');
+      BR.Game?.start(true);
+    });
+
+    this.elements.btnDailyBack?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
       self.showScreen('menu');
     });
@@ -158,6 +286,9 @@ BR.UI = {
     this.elements.btnResetConfirm?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
       BR.Storage.reset();
+      BR.PermanentUpgradeManager.init();
+      BR.UnlockManager.init();
+      BR.CollectionManager.init();
       self.elements.resetModal.style.display = 'none';
       self.elements.resetModal.setAttribute('hidden', '');
       self.updateMenuInfo();
@@ -185,6 +316,11 @@ BR.UI = {
       self.showScreen('menu');
     });
 
+    this.elements.btnPermShopBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
     this.elements.btnContinue?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
       BR.Game?.continueAfterBoss();
@@ -198,7 +334,9 @@ BR.UI = {
     var overlayIds = [
       'mainMenu', 'gameHud', 'upgradeOverlay', 'bossBar',
       'gameOverOverlay', 'pauseOverlay', 'settingsOverlay',
-      'achievementsOverlay', 'shopOverlay', 'victoryOverlay'
+      'achievementsOverlay', 'shopOverlay', 'victoryOverlay',
+      'runSummaryOverlay', 'collectionOverlay', 'statsOverlay',
+      'dailyOverlay', 'buildOverlay', 'permShopOverlay'
     ];
 
     for (var i = 0; i < overlayIds.length; i++) {
@@ -231,6 +369,9 @@ BR.UI = {
       case 'gameover':
         shown.push('gameOverOverlay');
         break;
+      case 'run_summary':
+        shown.push('runSummaryOverlay');
+        break;
       case 'boss':
         shown.push('gameHud', 'bossBar');
         break;
@@ -243,8 +384,23 @@ BR.UI = {
       case 'shop':
         shown.push('shopOverlay');
         break;
+      case 'permshop':
+        shown.push('permShopOverlay');
+        break;
       case 'victory':
         shown.push('victoryOverlay');
+        break;
+      case 'collection':
+        shown.push('collectionOverlay');
+        break;
+      case 'stats':
+        shown.push('statsOverlay');
+        break;
+      case 'daily':
+        shown.push('dailyOverlay');
+        break;
+      case 'build':
+        shown.push('buildOverlay');
         break;
     }
 
@@ -307,6 +463,25 @@ BR.UI = {
     this.showScreen('gameover');
   },
 
+  showRunSummary(endResult) {
+    var r = endResult.result;
+    var earned = endResult.earned;
+    if (this.elements.summaryScore) this.elements.summaryScore.textContent = r.score.toLocaleString();
+    if (this.elements.summaryBestCombo) this.elements.summaryBestCombo.textContent = 'x' + r.bestCombo;
+    if (this.elements.summaryBricks) this.elements.summaryBricks.textContent = r.bricksDestroyed;
+    if (this.elements.summaryCoins) this.elements.summaryCoins.textContent = '+' + earned;
+    if (this.elements.summaryLevel) this.elements.summaryLevel.textContent = 'Level ' + r.level + ' - Wave ' + r.wave;
+    if (this.elements.summaryNewBest) {
+      this.elements.summaryNewBest.style.display = endResult.isNewBest ? 'block' : 'none';
+    }
+    if (this.elements.summaryRewards) {
+      this.elements.summaryRewards.innerHTML =
+        '<div class="summary-reward">+' + earned + ' Coins</div>' +
+        '<div class="summary-reward">+' + r.bricksDestroyed + ' Bricks Destroyed</div>';
+    }
+    this.showScreen('run_summary');
+  },
+
   showUpgradeSelection(choices) {
     this.showScreen('upgrade');
 
@@ -317,14 +492,21 @@ BR.UI = {
       var choice = choices[i];
       if (!card || !choice) continue;
 
+      var rarityDef = BR.Upgrades.getRarityDef(choice.rarity);
+      var currentLevelText = choice.currentLevel > 0 ? 'Lv.' + choice.currentLevel + ' → Lv.' + choice.nextLevel : 'New';
+      var stackText = choice.currentLevel > 0 ? ' (Stack ' + (choice.currentLevel + 1) + ')' : '';
+
       card.innerHTML =
+        '<div class="upgrade-rarity rarity-' + choice.rarity + '">' + rarityDef.name + '</div>' +
         '<div class="upgrade-icon" style="color: ' + choice.color + '">' + choice.icon + '</div>' +
         '<div class="upgrade-name">' + choice.name + '</div>' +
-        '<div class="upgrade-desc">' + choice.description + '</div>';
-      card.style.borderColor = choice.color;
+        '<div class="upgrade-desc">' + choice.description + '</div>' +
+        '<div class="upgrade-level">' + currentLevelText + stackText + '</div>';
+      card.style.borderColor = rarityDef.color;
+      card.className = 'upgrade-card card rarity-border-' + choice.rarity;
       card.onclick = (function (c) {
         return function () {
-          BR.Audio?.buttonClick();
+          BR.Audio?.upgradeSelect();
           BR.Upgrades.applyRoguelike(c);
           BR.Game?.onUpgradeChosen();
         };
@@ -338,48 +520,295 @@ BR.UI = {
     this.showScreen('victory');
   },
 
-  renderShop() {
-    var list = this.elements.shopList;
+  renderPermShop() {
+    var self = this;
+    var list = this.elements.permShopList;
     if (!list) return;
 
     list.innerHTML = '';
     var saveData = BR.Storage.load();
-    var upgrades = saveData.permanentUpgrades;
+    var coins = saveData.coins || 0;
 
-    for (var i = 0; i < BR.Upgrades.PERMANENT_DEFS.length; i++) {
-      var def = BR.Upgrades.PERMANENT_DEFS[i];
-      var level = upgrades[def.id] || 0;
-      var cost = BR.Upgrades.getCost(level);
-      var canAfford = saveData.coins >= cost;
+    if (this.elements.permShopBalance) this.elements.permShopBalance.textContent = coins.toLocaleString();
+
+    var categories = ['attack', 'defense', 'economy', 'special'];
+    var activeTab = this._activePermTab || 'all';
+
+    if (this.elements.permShopTabs) {
+      this.elements.permShopTabs.innerHTML = '';
+      var tabs = ['all'].concat(categories);
+      var tabNames = { all: 'ALL', attack: 'ATTACK', defense: 'DEFENSE', economy: 'ECONOMY', special: 'SPECIAL' };
+      for (var t = 0; t < tabs.length; t++) {
+        var tabBtn = document.createElement('button');
+        tabBtn.className = 'shop-tab' + (tabs[t] === activeTab ? ' active' : '');
+        tabBtn.textContent = tabNames[tabs[t]] || tabs[t].toUpperCase();
+        tabBtn.setAttribute('data-tab', tabs[t]);
+        tabBtn.addEventListener('click', function() {
+          BR.Audio?.buttonClick();
+          self._activePermTab = this.getAttribute('data-tab');
+          self.renderPermShop();
+        });
+        this.elements.permShopTabs.appendChild(tabBtn);
+      }
+    }
+
+    var defs = BR.Upgrades.PERMANENT_DEFS;
+    for (var i = 0; i < defs.length; i++) {
+      var def = defs[i];
+      if (activeTab !== 'all' && def.category !== activeTab) continue;
+
+      var level = BR.PermanentUpgradeManager.getLevel(def.id);
+      var cost = BR.PermanentUpgradeManager.getCost(def.id);
+      var canAfford = coins >= cost;
+      var isMaxed = level >= def.maxLevel;
 
       var item = document.createElement('div');
-      item.className = 'shop-item';
-      item.style.opacity = canAfford ? '1' : '0.5';
+      item.className = 'shop-item' + (isMaxed ? ' maxed' : '') + (!canAfford && !isMaxed ? ' locked' : '');
+
+      var levelText = isMaxed ? 'MAX' : 'Level ' + level + ' / ' + def.maxLevel;
+      var effectPerLevel = def.effectPerLevel * 100;
+      var effectText = '+' + Math.round(effectPerLevel) + '% per level';
+
       item.innerHTML =
         '<div class="shop-item-icon" style="color: ' + def.color + '">' + def.icon + '</div>' +
         '<div class="shop-item-info">' +
           '<div class="shop-item-name">' + def.name + '</div>' +
-          '<div class="shop-item-desc">' + def.description + '</div>' +
-          '<div class="shop-item-level">Level ' + level + '</div>' +
+          '<div class="shop-item-desc">' + effectText + '</div>' +
+          '<div class="shop-item-level">' + levelText + '</div>' +
         '</div>' +
-        '<div class="shop-item-cost' + (canAfford ? '' : ' too-expensive') + '">' +
-          cost +
-        '</div>';
+        (isMaxed ? '<div class="shop-item-cost maxed-text">MAX</div>' :
+          '<div class="shop-item-cost' + (canAfford ? '' : ' too-expensive') + '">🪙 ' + cost.toLocaleString() + '</div>');
 
-      if (canAfford) {
-        item.addEventListener('click', (function (defId) {
-          return function () {
-            BR.Audio?.buttonClick();
-            if (BR.Storage.buyUpgrade(defId)) {
+      if (!isMaxed && canAfford) {
+        (function(defId, itemEl) {
+          itemEl.addEventListener('click', function () {
+            BR.Audio?.upgradePurchased();
+            if (BR.PermanentUpgradeManager.purchase(defId)) {
+              self._showUpgradeNotification();
               list.innerHTML = '';
-              BR.UI.renderShop();
-              BR.UI.updateMenuInfo();
+              self.renderPermShop();
+              self.updateMenuInfo();
             }
-          };
-        })(def.id));
+          });
+        })(def.id, item);
       }
 
       list.appendChild(item);
+    }
+  },
+
+  _showUpgradeNotification() {
+    var el = this.elements.upgradeNotification;
+    if (!el) return;
+    el.textContent = 'UPGRADE COMPLETE';
+    el.style.display = 'flex';
+    el.classList.add('show');
+    setTimeout(function() {
+      el.classList.remove('show');
+      el.style.display = 'none';
+    }, 1500);
+  },
+
+  renderShop() {
+    this.renderPermShop();
+  },
+
+  renderCollection(category) {
+    var list = this.elements.collectionList;
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (this.elements.collectionTabs) {
+      this.elements.collectionTabs.innerHTML = '';
+      var tabs = ['balls', 'paddles'];
+      var tabNames = { balls: 'BALLS', paddles: 'PADDLES' };
+      var self = this;
+      for (var t = 0; t < tabs.length; t++) {
+        var tabBtn = document.createElement('button');
+        tabBtn.className = 'shop-tab' + (tabs[t] === category ? ' active' : '');
+        tabBtn.textContent = tabNames[tabs[t]];
+        tabBtn.setAttribute('data-cat', tabs[t]);
+        tabBtn.addEventListener('click', function() {
+          BR.Audio?.buttonClick();
+          self.renderCollection(this.getAttribute('data-cat'));
+        });
+        this.elements.collectionTabs.appendChild(tabBtn);
+      }
+    }
+
+    var items = category === 'balls' ? BR.CollectionManager.BALL_SKINS : BR.CollectionManager.PADDLE_SKINS;
+    var activeId = category === 'balls' ? BR.CollectionManager.activeBallSkin : BR.CollectionManager.activePaddleSkin;
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var unlocked = !item.unlockId || BR.UnlockManager.isUnlocked(item.unlockId);
+      var isActive = item.id === activeId;
+
+      var el = document.createElement('div');
+      el.className = 'collection-item' + (!unlocked ? ' locked' : '') + (isActive ? ' active' : '');
+
+      var preview = category === 'balls'
+        ? '<div class="collection-preview"><div class="ball-preview" style="background:' + item.color + ';box-shadow:0 0 12px ' + item.glow + '"></div></div>'
+        : '<div class="collection-preview"><div class="paddle-preview" style="background:linear-gradient(90deg,' + item.gradient.join(',') + ');box-shadow:0 0 12px ' + item.color + '"></div></div>';
+
+      var unlockInfo = '';
+      if (!unlocked && item.unlockId) {
+        var unlockDef = null;
+        for (var j = 0; j < BR.UnlockManager.DEFINITIONS.length; j++) {
+          if (BR.UnlockManager.DEFINITIONS[j].id === item.unlockId) {
+            unlockDef = BR.UnlockManager.DEFINITIONS[j];
+            break;
+          }
+        }
+        unlockInfo = unlockDef ? '🔒 ' + unlockDef.description : '🔒 Locked';
+      }
+
+      el.innerHTML =
+        preview +
+        '<div class="collection-info">' +
+          '<div class="collection-name">' + item.name + '</div>' +
+          (unlocked ? '<div class="collection-desc">' + item.description + '</div>' : '<div class="collection-locked">' + unlockInfo + '</div>') +
+        '</div>' +
+        (isActive ? '<div class="collection-badge">EQUIPPED</div>' : '');
+
+      if (unlocked && !isActive) {
+        (function(skinId, cat, el) {
+          el.addEventListener('click', function() {
+            BR.Audio?.buttonClick();
+            if (cat === 'balls') BR.CollectionManager.equipBall(skinId);
+            else BR.CollectionManager.equipPaddle(skinId);
+            self.renderCollection(cat);
+          });
+        })(item.id, category, el);
+      }
+
+      list.appendChild(el);
+    }
+  },
+
+  renderStats() {
+    var content = this.elements.statsContent;
+    if (!content) return;
+    var save = BR.Storage.load();
+
+    var stats = [
+      { label: 'TOTAL RUNS', value: (save.totalRuns || 0).toLocaleString() },
+      { label: 'TOTAL BRICKS', value: (save.totalBricksDestroyed || 0).toLocaleString() },
+      { label: 'TOTAL COINS', value: (save.totalCoinsEarned || 0).toLocaleString() },
+      { label: 'BEST SCORE', value: (save.bestScore || 0).toLocaleString() },
+      { label: 'BEST COMBO', value: 'x' + (save.highestCombo || 0) },
+      { label: 'HIGHEST LEVEL', value: save.highestLevel || 0 },
+      { label: 'HIGHEST WAVE', value: save.highestWave || 0 },
+      { label: 'BOSSES DEFEATED', value: save.bossesDefeated || 0 },
+      { label: 'TOTAL PLAY TIME', value: this._formatTime(save.totalPlayTime || 0) },
+      { label: 'DAILY STREAK', value: BR.DailyChallenge.getStreak() + ' days' },
+      { label: 'ACHIEVEMENTS', value: this._countAchievements(save.achievements) + ' / 8' }
+    ];
+
+    content.innerHTML = '';
+    for (var i = 0; i < stats.length; i++) {
+      var row = document.createElement('div');
+      row.className = 'stat-row';
+      row.innerHTML = '<span class="stat-label">' + stats[i].label + '</span><span class="stat-value">' + stats[i].value + '</span>';
+      content.appendChild(row);
+    }
+  },
+
+  _formatTime(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60);
+    var h = Math.floor(m / 60);
+    if (h > 0) return h + 'h ' + (m % 60) + 'm';
+    if (m > 0) return m + 'm ' + (s % 60) + 's';
+    return s + 's';
+  },
+
+  _countAchievements(achs) {
+    if (!achs) return 0;
+    var c = 0;
+    for (var k in achs) { if (achs[k]) c++; }
+    return c;
+  },
+
+  renderDaily() {
+    var data = BR.DailyChallenge.getData();
+    if (this.elements.dailyTheme) {
+      this.elements.dailyTheme.innerHTML =
+        '<div class="daily-theme-icon" style="color:' + data.theme.color + '">' + data.theme.icon + '</div>' +
+        '<div class="daily-theme-name">' + data.theme.name + '</div>';
+    }
+    if (this.elements.dailyModifiers) {
+      this.elements.dailyModifiers.innerHTML =
+        '<div class="daily-mod">Damage: +' + Math.round((data.modifiers.damageMultiplier - 1) * 100) + '%</div>' +
+        '<div class="daily-mod">Speed: +' + Math.round((data.modifiers.ballSpeed - 1) * 100) + '%</div>' +
+        '<div class="daily-mod">Width: ' + Math.round(data.modifiers.paddleWidth * 100) + '%</div>' +
+        '<div class="daily-mod">Coins: +' + Math.round((data.modifiers.coinMultiplier - 1) * 100) + '%</div>';
+    }
+    if (this.elements.dailyReward) {
+      this.elements.dailyReward.innerHTML = '🪙 ' + data.reward + ' bonus coins';
+    }
+    if (this.elements.dailyBest) {
+      var best = BR.DailyChallenge.getTodayBest();
+      this.elements.dailyBest.textContent = best > 0 ? 'Best: ' + best.toLocaleString() : 'Not completed yet';
+    }
+    if (this.elements.dailyStreak) {
+      this.elements.dailyStreak.textContent = 'Streak: ' + BR.DailyChallenge.getStreak() + ' days';
+    }
+  },
+
+  renderBuild() {
+    var statsEl = this.elements.buildStats;
+    var upgradesEl = this.elements.buildUpgrades;
+    var synergiesEl = this.elements.buildSynergies;
+
+    if (statsEl) {
+      var panel = BR.BuildManager.getStatPanelData();
+      statsEl.innerHTML = '';
+      for (var i = 0; i < panel.length; i++) {
+        var row = document.createElement('div');
+        row.className = 'build-stat-row';
+        row.innerHTML = '<span class="build-stat-label" style="color:' + panel[i].color + '">' + panel[i].label + '</span><span class="build-stat-value">' + panel[i].value + '</span>';
+        statsEl.appendChild(row);
+      }
+    }
+
+    if (upgradesEl) {
+      upgradesEl.innerHTML = '';
+      var collected = BR.UpgradeManager.getAllCollected();
+      if (collected.length === 0) {
+        upgradesEl.innerHTML = '<div class="build-empty">No upgrades collected yet</div>';
+      } else {
+        for (var i = 0; i < collected.length; i++) {
+          var upg = collected[i];
+          var def = upg.def;
+          var rarityDef = BR.Upgrades.getRarityDef(def.rarity);
+          var el = document.createElement('div');
+          el.className = 'build-upgrade-item';
+          el.innerHTML =
+            '<span class="build-upgrade-icon" style="color:' + def.color + '">' + def.icon + '</span>' +
+            '<span class="build-upgrade-name">' + def.name + '</span>' +
+            '<span class="build-upgrade-level rarity-' + def.rarity + '">Lv.' + upg.level + '</span>';
+          upgradesEl.appendChild(el);
+        }
+      }
+    }
+
+    if (synergiesEl) {
+      synergiesEl.innerHTML = '';
+      var synergies = BR.UpgradeManager.getActiveSynergies();
+      if (synergies.length === 0) {
+        synergiesEl.innerHTML = '<div class="build-empty">No synergies active</div>';
+      } else {
+        for (var i = 0; i < synergies.length; i++) {
+          var syn = synergies[i];
+          var el = document.createElement('div');
+          el.className = 'build-synergy-item';
+          el.innerHTML =
+            '<span class="build-synergy-name" style="color:' + (syn.color || '#ff00aa') + '">' + syn.name + '</span>' +
+            '<span class="build-synergy-desc">' + syn.description + '</span>';
+          synergiesEl.appendChild(el);
+        }
+      }
     }
   },
 
@@ -392,14 +821,14 @@ BR.UI = {
     var achievements = saveData.achievements || {};
 
     var allAchievements = [
-      { id: 'first_break', name: 'FIRST BREAK', desc: 'Hancurkan brick pertama', icon: '\u{1F9F1}' },
-      { id: 'combo_master', name: 'COMBO MASTER', desc: 'Capai combo x50', icon: '\u26A1' },
-      { id: 'demolition', name: 'DEMOLITION', desc: 'Hancurkan 1.000 brick', icon: '\u{1F4A3}' },
-      { id: 'boss_slayer', name: 'BOSS SLAYER', desc: 'Kalahkan boss pertama', icon: '\u2694' },
-      { id: 'millionaire', name: 'MILLIONAIRE', desc: 'Kumpulkan 10.000 koin', icon: '\u{1F4B0}' },
-      { id: 'unstoppable', name: 'UNSTOPPABLE', desc: 'Capai wave 50', icon: '\u{1F3C6}' },
-      { id: 'first_upgrade', name: 'FIRST UPGRADE', desc: 'Ambil upgrade pertama', icon: '\u2B06' },
-      { id: 'survivor', name: 'SURVIVOR', desc: 'Selamat dari 5 wave', icon: '\u{1F6E1}' },
+      { id: 'first_break', name: 'FIRST BREAK', desc: 'Break your first brick', icon: '🧱' },
+      { id: 'combo_master', name: 'COMBO MASTER', desc: 'Reach combo x50', icon: '⚡' },
+      { id: 'demolition', name: 'DEMOLITION', desc: 'Destroy 1,000 bricks', icon: '💥' },
+      { id: 'boss_slayer', name: 'BOSS SLAYER', desc: 'Defeat your first boss', icon: '⚔' },
+      { id: 'millionaire', name: 'MILLIONAIRE', desc: 'Collect 10,000 coins', icon: '💰' },
+      { id: 'unstoppable', name: 'UNSTOPPABLE', desc: 'Reach wave 50', icon: '🏆' },
+      { id: 'first_upgrade', name: 'FIRST UPGRADE', desc: 'Pick your first upgrade', icon: '⬆' },
+      { id: 'survivor', name: 'SURVIVOR', desc: 'Survive 5 waves', icon: '🛡' }
     ];
 
     for (var i = 0; i < allAchievements.length; i++) {
@@ -408,7 +837,7 @@ BR.UI = {
       var item = document.createElement('div');
       item.className = 'achievement-item' + (unlocked ? ' unlocked' : '');
       item.innerHTML =
-        '<div class="achievement-icon">' + (unlocked ? ach.icon : '\u{1F512}') + '</div>' +
+        '<div class="achievement-icon">' + (unlocked ? ach.icon : '🔒') + '</div>' +
         '<div class="achievement-info">' +
           '<div class="achievement-name">' + ach.name + '</div>' +
           '<div class="achievement-desc">' + ach.desc + '</div>' +
@@ -434,10 +863,10 @@ BR.UI = {
   updateMenuInfo() {
     var saveData = BR.Storage.load();
     if (this.elements.bestScoreDisplay) {
-      this.elements.bestScoreDisplay.textContent = 'Best: ' + saveData.bestScore.toLocaleString();
+      this.elements.bestScoreDisplay.textContent = 'Best: ' + (saveData.bestScore || 0).toLocaleString();
     }
     if (this.elements.coinBalance) {
-      this.elements.coinBalance.textContent = saveData.coins.toLocaleString();
+      this.elements.coinBalance.textContent = (saveData.coins || 0).toLocaleString();
     }
   },
 
