@@ -6,6 +6,29 @@ Game brick breaker klasik dengan sentuhan roguelike upgrade, sistem boss battle,
 
 **Author:** [fahmikip](https://github.com/fahmikip)
 
+**Play Online:** [https://fahmikip.github.io/BRICK-RUSH/](https://fahmikip.github.io/BRICK-RUSH/)
+
+---
+
+## Screenshot
+
+### Main Menu
+![Main Menu](screenshots/menu.png)
+
+### Mode Selection
+![Mode Selection](screenshots/mode-select.png)
+
+### Gameplay
+![Gameplay](screenshots/gameplay.png)
+
+![Gameplay 2](screenshots/gameplay2.png)
+
+### Mobile View
+![Mobile View](screenshots/mobile.png)
+
+### Settings
+![Settings](screenshots/settings.png)
+
 ---
 
 ## Daftar Isi
