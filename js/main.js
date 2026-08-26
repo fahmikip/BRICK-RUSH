@@ -30,6 +30,7 @@ BR.Main = {
     BR.PermanentUpgradeManager.init();
     BR.UnlockManager.init();
     BR.CollectionManager.init();
+    if (BR.WorldManager) BR.WorldManager.init();
 
     var params = new URLSearchParams(window.location.search);
     if (params.get('debug') === 'true') {
@@ -70,7 +71,7 @@ BR.Main = {
     document.addEventListener('touchstart', resumeAudio);
     document.addEventListener('keydown', resumeAudio);
 
-    console.log('BRICK RUSH Phase 4 initialized!');
+    console.log('BRICK RUSH Phase 5 initialized!');
   },
 
   initBackground: function (bgCanvas) {

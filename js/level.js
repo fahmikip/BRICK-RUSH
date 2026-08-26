@@ -20,7 +20,7 @@ BR.LevelGenerator = {
     const padding = 4;
     const brickW = Math.min(50, (canvasWidth - 40) / 8);
     const brickH = 20;
-    const topOffset = 60;
+    const topOffset = 10;
     const sidePadding = 20;
 
     const cols = Math.floor((canvasWidth - sidePadding * 2) / (brickW + padding));
@@ -245,9 +245,15 @@ BR.Level = {
 
   generateWave(level, wave, canvasWidth, canvasHeight) {
     const isBoss = this.isBossWave;
-    const isElite = wave === this.wavesPerLevel;
+    const isElite = this.isEliteWave;
 
-    if (isBoss || isElite) return [];
+    if (isBoss) return [];
+    if (isElite) {
+      if (BR.EliteManager) {
+        return BR.EliteManager.generateEliteWave(level, wave, canvasWidth, canvasHeight);
+      }
+      return [];
+    }
 
     const config = BR.LevelGenerator.getConfig(level, wave, canvasWidth, canvasHeight);
     return BR.LevelGenerator.generate(config);
@@ -258,6 +264,7 @@ BR.Level = {
     if (this.wave > this.wavesPerLevel) {
       this.wave = 1;
       this.isBossWave = true;
+      this.isEliteWave = false;
       return 'boss';
     }
     if (this.wave === this.wavesPerLevel) {

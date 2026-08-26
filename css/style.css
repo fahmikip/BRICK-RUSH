@@ -70,7 +70,8 @@ html, body {
 /* Game Canvas */
 #gameCanvas {
   display: block;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   background: var(--bg-primary);
   image-rendering: pixelated;
   touch-action: none;

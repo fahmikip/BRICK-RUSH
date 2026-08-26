@@ -112,5 +112,38 @@ BR.Juice = {
     ctx.fillStyle = this.screenFlashColor;
     ctx.fillRect(0, 0, width, height);
     ctx.restore();
+  },
+
+  bossHit(x, y) {
+    this.shake(6, 0.15);
+    this.flash('#ffffff', 0.06);
+    this.vibrate(15);
+  },
+
+  weakPoint(x, y) {
+    this.shake(10, 0.2);
+    this.slowMotion(0.6, 0.2);
+    this.flash('#ff0044', 0.1);
+    this.vibrate(30);
+  },
+
+  phaseTransition(x, y) {
+    this.shake(12, 0.3);
+    this.slowMotion(0.5, 0.4);
+    this.flash('#ffaa00', 0.15);
+    this.vibrate([30, 20, 30, 20, 30]);
+  },
+
+  bossDefeat() {
+    this.shake(20, 0.6);
+    this.slowMotion(0.3, 1);
+    this.flash('#ffffff', 0.3);
+    this.vibrate([100, 50, 100, 50, 100]);
+  },
+
+  bossWarning() {
+    this.shake(3, 0.5);
+    this.flash('#ff0044', 0.08);
+    this.vibrate([50, 30, 50, 30, 50]);
   }
 };

@@ -2,10 +2,10 @@ window.BR = window.BR || {};
 
 BR.Storage = {
   _key: 'brickrush_save',
-  _schemaVersion: 2,
+  _schemaVersion: 3,
 
   _defaults: {
-    version: 2,
+    version: 3,
     coins: 0,
     bestScore: 0,
     totalBricksDestroyed: 0,
@@ -17,7 +17,11 @@ BR.Storage = {
     totalPlayTime: 0,
     bossesDefeated: 0,
     currentArea: 0,
+    selectedArea: 0,
     unlockedAreas: [0],
+    defeatedBosses: {},
+    coreTokens: 0,
+    bossBestScores: {},
     permanentUpgrades: {
       startingDamage: 0,
       startingCritical: 0,
@@ -81,13 +85,17 @@ BR.Storage = {
   _migrate(data) {
     if (!data || typeof data !== 'object') return this._deepClone(this._defaults);
 
-    if (!data.version || data.version < 2) {
+    if (!data.version || data.version < 3) {
       var migrated = this._deepClone(this._defaults);
       if (data.coins !== undefined) migrated.coins = data.coins;
       if (data.bestScore !== undefined) migrated.bestScore = data.bestScore;
       if (data.totalBricksDestroyed !== undefined) migrated.totalBricksDestroyed = data.totalBricksDestroyed;
       if (data.totalCoinsEarned !== undefined) migrated.totalCoinsEarned = data.totalCoinsEarned;
       if (data.highestWave !== undefined) migrated.highestWave = data.highestWave;
+      if (data.highestCombo !== undefined) migrated.highestCombo = data.highestCombo;
+      if (data.highestLevel !== undefined) migrated.highestLevel = data.highestLevel;
+      if (data.totalRuns !== undefined) migrated.totalRuns = data.totalRuns;
+      if (data.totalPlayTime !== undefined) migrated.totalPlayTime = data.totalPlayTime;
       if (data.bossesDefeated !== undefined) migrated.bossesDefeated = data.bossesDefeated;
       if (data.currentArea !== undefined) migrated.currentArea = data.currentArea;
       if (data.unlockedAreas !== undefined) migrated.unlockedAreas = data.unlockedAreas;
@@ -95,6 +103,9 @@ BR.Storage = {
       if (data.settings !== undefined) migrated.settings = data.settings;
       if (data.ballSkins) migrated.skins.balls = data.ballSkins;
       if (data.paddleSkins) migrated.skins.paddles = data.paddleSkins;
+      if (data.defeatedBosses !== undefined) migrated.defeatedBosses = data.defeatedBosses;
+      if (data.coreTokens !== undefined) migrated.coreTokens = data.coreTokens;
+      if (data.bossBestScores !== undefined) migrated.bossBestScores = data.bossBestScores;
 
       if (data.permanentUpgrades) {
         var old = data.permanentUpgrades;

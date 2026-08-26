@@ -8,6 +8,7 @@ BR.UI = {
     this.elements = {
       mainMenu: document.getElementById('mainMenu'),
       btnPlay: document.getElementById('btnPlay'),
+      btnWorldMap: document.getElementById('btnWorldMap'),
       btnUpgrades: document.getElementById('btnUpgrades'),
       btnAchievements: document.getElementById('btnAchievements'),
       btnSettings: document.getElementById('btnSettings'),
@@ -103,6 +104,24 @@ BR.UI = {
       permShopBalance: document.getElementById('permShopBalance'),
       btnPermShopBack: document.getElementById('btnPermShopBack'),
       upgradeNotification: document.getElementById('upgradeNotification'),
+      worldMapOverlay: document.getElementById('worldMapOverlay'),
+      worldMapAreas: document.getElementById('worldMapAreas'),
+      btnWorldMapBack: document.getElementById('btnWorldMapBack'),
+      btnWorldMapPlay: document.getElementById('btnWorldMapPlay'),
+      eliteAnnounce: document.getElementById('eliteAnnounce'),
+      eliteAnnounceText: document.getElementById('eliteAnnounceText'),
+      bossResultOverlay: document.getElementById('bossResultOverlay'),
+      bossResultName: document.getElementById('bossResultName'),
+      bossResultScore: document.getElementById('bossResultScore'),
+      bossResultTime: document.getElementById('bossResultTime'),
+      bossResultCombo: document.getElementById('bossResultCombo'),
+      bossResultCoins: document.getElementById('bossResultCoins'),
+      bossResultTokens: document.getElementById('bossResultTokens'),
+      bossResultBest: document.getElementById('bossResultBest'),
+      btnBossContinue: document.getElementById('btnBossContinue'),
+      btnBossReplay: document.getElementById('btnBossReplay'),
+      btnBossWorldMap: document.getElementById('btnBossWorldMap'),
+      tokenBalance: document.getElementById('tokenBalance'),
     };
 
     this._bindEvents();
@@ -117,6 +136,11 @@ BR.UI = {
       BR.Audio?.buttonClick();
       self.showScreen('game');
       BR.Game?.start(false);
+    });
+
+    this.elements.btnWorldMap?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showWorldMap();
     });
 
     this.elements.btnUpgrades?.addEventListener('click', function () {
@@ -326,6 +350,39 @@ BR.UI = {
       BR.Game?.continueAfterBoss();
       self.showScreen('game');
     });
+
+    this.elements.btnWorldMapBack?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      self.showScreen('menu');
+    });
+
+    this.elements.btnWorldMapPlay?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      BR.Audio?.resume();
+      var area = BR.WorldManager.getSelectedArea();
+      BR.Storage.set('currentArea', area.id);
+      self.showScreen('game');
+      BR.Game?.start(false);
+    });
+
+    this.elements.btnBossContinue?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      if (BR.BossManager) BR.BossManager.continueAfterBoss();
+      self.showScreen('game');
+    });
+
+    this.elements.btnBossReplay?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      BR.Audio?.resume();
+      self.showScreen('game');
+      BR.Game?.start(false);
+    });
+
+    this.elements.btnBossWorldMap?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      BR.Game?.quit();
+      self.showWorldMap();
+    });
   },
 
   showScreen(screen) {
@@ -336,7 +393,8 @@ BR.UI = {
       'gameOverOverlay', 'pauseOverlay', 'settingsOverlay',
       'achievementsOverlay', 'shopOverlay', 'victoryOverlay',
       'runSummaryOverlay', 'collectionOverlay', 'statsOverlay',
-      'dailyOverlay', 'buildOverlay', 'permShopOverlay'
+      'dailyOverlay', 'buildOverlay', 'permShopOverlay',
+      'worldMapOverlay', 'eliteAnnounce', 'bossResultOverlay'
     ];
 
     for (var i = 0; i < overlayIds.length; i++) {
@@ -401,6 +459,18 @@ BR.UI = {
         break;
       case 'build':
         shown.push('buildOverlay');
+        break;
+      case 'worldmap':
+        shown.push('worldMapOverlay');
+        break;
+      case 'elite_announce':
+        shown.push('gameHud', 'eliteAnnounce');
+        break;
+      case 'boss_intro':
+        shown.push('gameHud', 'bossBar');
+        break;
+      case 'boss_result':
+        shown.push('bossResultOverlay');
         break;
     }
 
@@ -868,6 +938,9 @@ BR.UI = {
     if (this.elements.coinBalance) {
       this.elements.coinBalance.textContent = (saveData.coins || 0).toLocaleString();
     }
+    if (this.elements.tokenBalance) {
+      this.elements.tokenBalance.textContent = (saveData.coreTokens || 0).toLocaleString();
+    }
   },
 
   shake(intensity, duration) {
@@ -909,5 +982,72 @@ BR.UI = {
     setTimeout(function () {
       if (coinEl.parentNode) coinEl.parentNode.removeChild(coinEl);
     }, 1000);
+  },
+
+  showBossResult(boss, rewards, duration, bestCombo) {
+    if (this.elements.bossResultName) this.elements.bossResultName.textContent = boss.name;
+    if (this.elements.bossResultScore) this.elements.bossResultScore.textContent = rewards.score.toLocaleString();
+    if (this.elements.bossResultTime) this.elements.bossResultTime.textContent = this._formatTime(duration);
+    if (this.elements.bossResultCombo) this.elements.bossResultCombo.textContent = 'x' + bestCombo;
+    if (this.elements.bossResultCoins) this.elements.bossResultCoins.textContent = '+' + rewards.coins.toLocaleString();
+    if (this.elements.bossResultTokens) this.elements.bossResultTokens.textContent = '+' + rewards.tokens;
+    var best = BR.WorldManager.getBossBestScore(boss.id);
+    if (this.elements.bossResultBest) {
+      this.elements.bossResultBest.textContent = 'Best: ' + best.score.toLocaleString();
+    }
+    if (this.elements.btnBossReplay) {
+      this.elements.btnBossReplay.style.display = rewards.isReplay ? 'inline-flex' : 'none';
+    }
+    this.showScreen('boss_result');
+  },
+
+  showWorldMap() {
+    var areasEl = this.elements.worldMapAreas;
+    if (!areasEl || !BR.WorldManager) return;
+    areasEl.innerHTML = '';
+
+    var progress = BR.WorldManager.getUnlockProgress();
+    var selectedArea = BR.WorldManager.selectedArea;
+
+    for (var i = 0; i < progress.length; i++) {
+      var p = progress[i];
+      var areaEl = document.createElement('div');
+      areaEl.className = 'world-area' + (p.unlocked ? ' unlocked' : ' locked') + (i === selectedArea ? ' selected' : '');
+
+      var statusIcon = p.defeated ? '&#10003;' : (p.unlocked ? '&#9654;' : '&#128274;');
+      var statusText = p.defeated ? 'DEFEATED' : (p.unlocked ? 'READY' : 'LOCKED');
+
+      areaEl.innerHTML =
+        '<div class="world-area-number">' + (i + 1) + '</div>' +
+        '<div class="world-area-info">' +
+          '<div class="world-area-name" style="color:' + p.area.theme.accent + '">' + p.area.name + '</div>' +
+          '<div class="world-area-desc">' + p.area.description + '</div>' +
+          '<div class="world-area-status">' + statusIcon + ' ' + statusText + '</div>' +
+          (p.bestScore.score > 0 ? '<div class="world-area-best">Best: ' + p.bestScore.score.toLocaleString() + '</div>' : '') +
+        '</div>';
+
+      if (p.unlocked) {
+        (function(areaIdx) {
+          areaEl.addEventListener('click', function() {
+            BR.Audio?.buttonClick();
+            BR.WorldManager.selectArea(areaIdx);
+            self.showWorldMap();
+          });
+        })(i);
+      }
+
+      areasEl.appendChild(areaEl);
+    }
+
+    var tokens = BR.WorldManager.getCoreTokens();
+    if (this.elements.tokenBalance) this.elements.tokenBalance.textContent = tokens;
+
+    this.showScreen('worldmap');
+  },
+
+  updateTokenBalance() {
+    if (this.elements.tokenBalance) {
+      this.elements.tokenBalance.textContent = BR.WorldManager ? BR.WorldManager.getCoreTokens() : 0;
+    }
   }
 };

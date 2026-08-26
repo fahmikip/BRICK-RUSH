@@ -122,6 +122,15 @@
   min-width: 60px;
 }
 
+.boss-phase {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--accent-yellow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .boss-hp-track {
   flex: 1;
   height: 14px;
@@ -224,6 +233,9 @@
 #gameCanvas {
   position: relative;
   z-index: 1;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 /* ============================================

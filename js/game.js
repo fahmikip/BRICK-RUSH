@@ -10,7 +10,7 @@ BR.Debug = {
     if (!this.enabled) return;
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-    ctx.fillRect(4, 4, 260, 290);
+    ctx.fillRect(4, 4, 260, 320);
     ctx.fillStyle = '#00ff88';
     ctx.font = 'bold 10px monospace';
     ctx.textAlign = 'left';
@@ -33,7 +33,9 @@ BR.Debug = {
       'Powerups: ' + BR.Powerups.activeEffects.length,
       'DMG: ' + Math.round(BR.BuildManager.getStat('damageMultiplier') * 100) + '%',
       'CRIT: ' + Math.round(BR.BuildManager.getStat('criticalChance') * 100) + '%',
-      'MULTI: ' + Math.round(BR.BuildManager.getStat('coinMultiplier') * 100) + '%'
+      'MULTI: ' + Math.round(BR.BuildManager.getStat('coinMultiplier') * 100) + '%',
+      'Boss: ' + (BR.BossManager && BR.BossManager.currentBoss ? BR.BossManager.currentBoss.name + ' ' + BR.BossManager.state : 'none'),
+      'Tokens: ' + (BR.WorldManager ? BR.WorldManager.getCoreTokens() : 0)
     ];
     for (var i = 0; i < lines.length; i++) {
       ctx.fillText(lines[i], 10, 10 + i * 16);
@@ -47,9 +49,10 @@ BR.Debug = {
       { label: '+1000 COINS', action: function() { BR.Storage.addCoins(1000); BR.UI.updateMenuInfo(); } },
       { label: 'MAX TEMP UPGRADES', action: function() { for (var i = 0; i < 5; i++) { var ch = BR.UpgradeManager.getChoices(1); if (ch.length > 0) BR.UpgradeManager.selectUpgrade(ch[0]); } } },
       { label: 'RESET RUN', action: function() { game._gameOver(); } },
-      { label: 'UNLOCK ALL', action: function() { var save = BR.Storage.load(); save.unlocks = {}; for (var i = 0; i < BR.UnlockManager.DEFINITIONS.length; i++) { save.unlocks[BR.UnlockManager.DEFINITIONS[i].id] = true; } BR.Storage.save(); BR.UnlockManager.init(); } }
+      { label: 'UNLOCK ALL', action: function() { var save = BR.Storage.load(); save.unlocks = {}; for (var i = 0; i < BR.UnlockManager.DEFINITIONS.length; i++) { save.unlocks[BR.UnlockManager.DEFINITIONS[i].id] = true; } BR.Storage.save(); BR.UnlockManager.init(); } },
+      { label: 'DEFEAT BOSS', action: function() { if (BR.BossManager && BR.BossManager.currentBoss) { BR.BossManager.currentBoss.hp = 0; BR.BossManager.currentBoss.alive = false; BR.BossManager._onBossDefeated(); } } }
     ];
-    var y = 260;
+    var y = 275;
     for (var i = 0; i < btns.length; i++) {
       var bx = 10, by = y + i * 28, bw = 240, bh = 24;
       ctx.fillStyle = 'rgba(0, 240, 255, 0.2)';
@@ -65,12 +68,13 @@ BR.Debug = {
   },
   handleDebugClick: function(x, y, game) {
     if (!this.enabled) return false;
-    var y0 = 260;
+    var y0 = 275;
     var btns = [
       function() { BR.Storage.addCoins(1000); BR.UI.updateMenuInfo(); },
       function() { for (var i = 0; i < 5; i++) { var ch = BR.UpgradeManager.getChoices(1); if (ch.length > 0) BR.UpgradeManager.selectUpgrade(ch[0]); } },
       function() { game._gameOver(); },
-      function() { var save = BR.Storage.load(); save.unlocks = {}; for (var i = 0; i < BR.UnlockManager.DEFINITIONS.length; i++) { save.unlocks[BR.UnlockManager.DEFINITIONS[i].id] = true; } BR.Storage.save(); BR.UnlockManager.init(); }
+      function() { var save = BR.Storage.load(); save.unlocks = {}; for (var i = 0; i < BR.UnlockManager.DEFINITIONS.length; i++) { save.unlocks[BR.UnlockManager.DEFINITIONS[i].id] = true; } BR.Storage.save(); BR.UnlockManager.init(); },
+      function() { if (BR.BossManager && BR.BossManager.currentBoss) { BR.BossManager.currentBoss.hp = 0; BR.BossManager.currentBoss.alive = false; BR.BossManager._onBossDefeated(); } }
     ];
     for (var i = 0; i < btns.length; i++) {
       var by = y0 + i * 28;
@@ -120,6 +124,7 @@ BR.Game = {
   _currentPattern: '',
   _explosionSet: null,
   _pendingUpgradeChoices: null,
+  _bossEncounterArea: 0,
 
   init() {
     this.canvas = BR.UI?.elements?.gameCanvas || document.getElementById('gameCanvas');
@@ -143,13 +148,15 @@ BR.Game = {
     if (!this.canvas) return;
     var isMobile = window.innerWidth < 768;
     var maxW = isMobile ? window.innerWidth : Math.min(window.innerWidth * 0.6, 600);
-    var maxH = isMobile ? window.innerHeight * 0.75 : window.innerHeight * 0.85;
+    var hudH = isMobile ? 44 : 56;
+    var maxH = window.innerHeight - hudH - 20;
     this.width = Math.floor(maxW);
-    this.height = Math.floor(maxH);
+    this.height = Math.floor(Math.max(200, maxH));
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.canvas.style.width = this.width + 'px';
     this.canvas.style.height = this.height + 'px';
+    this.canvas.style.marginTop = hudH + 'px';
   },
 
   start(isDaily) {
@@ -168,6 +175,12 @@ BR.Game = {
     this._waveCompletePending = false;
     this._explosionSet = null;
     this._pendingUpgradeChoices = null;
+    this._bossEncounterArea = 0;
+
+    if (BR.BossManager) BR.BossManager.clear();
+    if (BR.BossAttack) BR.BossAttack.clear();
+    if (BR.EliteManager) BR.EliteManager.clear();
+    if (BR.WorldManager) BR.WorldManager.init();
 
     BR.Level.reset();
     var savedArea = BR.Storage.get('currentArea') || 0;
@@ -179,6 +192,7 @@ BR.Game = {
       this.modifiers.coinMultiplier = daily.modifiers.coinMultiplier;
     }
     BR.Level.currentArea = savedArea;
+    this._bossEncounterArea = savedArea;
     BR.Upgrades.init();
     BR.Powerups.init();
     BR.Combo.init();
@@ -236,11 +250,36 @@ BR.Game = {
 
     var run = BR.RunManager.getState();
 
+    // Check if previous level was a boss level (every 10 levels)
+    // Level is already incremented by RunManager, so check (level-1)
+    if (run.level > 1 && (run.level - 1) % 10 === 0 && run.wave === 1) {
+      BR.Level.isBossWave = true;
+    }
+
+    if (run.wave === BR.Level.wavesPerLevel && !BR.Level.isBossWave) {
+      BR.Level.isEliteWave = true;
+    } else if (!BR.Level.isBossWave) {
+      BR.Level.isEliteWave = false;
+    }
+
     if (BR.Level.shouldBossWave()) {
-      this.state = 'boss';
-      this.boss = new BR.Boss(BR.Level.currentArea, run.level, this.width);
-      BR.UI.showScreen('boss');
-      BR.UI.updateBossBar(this.boss.name, this.boss.hp, this.boss.maxHp);
+      this.state = 'boss_intro';
+      BR.BossManager.startEncounter(this._bossEncounterArea, run.level, this.width, this.height, false);
+      BR.UI.showScreen('boss_intro');
+      return;
+    }
+
+    if (BR.Level.isEliteWave) {
+      var eliteBricks = BR.EliteManager.generateEliteWave(run.level, run.wave, this.width, this.height);
+      for (var i = 0; i < eliteBricks.length; i++) {
+        this.brickManager.addBrick(eliteBricks[i]);
+      }
+      BR.UI.showScreen('elite_announce');
+      setTimeout(function() {
+        if (BR.Game.state === 'playing' || BR.Game.state === 'elite_announce') {
+          BR.UI.showScreen('game');
+        }
+      }, 2000);
       return;
     }
 
@@ -256,14 +295,14 @@ BR.Game = {
   },
 
   pause() {
-    if (this.state === 'playing' || this.state === 'boss') {
+    if (this.state === 'playing' || this.state === 'boss' || this.state === 'boss_intro') {
       this.state = 'paused';
     }
   },
 
   resume() {
     if (this.state === 'paused') {
-      this.state = this.boss ? 'boss' : 'playing';
+      this.state = this.boss || (BR.BossManager && BR.BossManager.isActive()) ? 'boss' : 'playing';
       this.lastTime = performance.now();
     }
   },
@@ -281,6 +320,9 @@ BR.Game = {
     BR.EventQueue.clear();
     BR.Combo.init();
     BR.Input.reset();
+    if (BR.BossManager) BR.BossManager.clear();
+    if (BR.BossAttack) BR.BossAttack.clear();
+    if (BR.EliteManager) BR.EliteManager.clear();
   },
 
   _loop() {
@@ -294,7 +336,7 @@ BR.Game = {
     var timeScale = BR.Juice.getTimeScale();
     var scaledDt = dt * timeScale;
 
-    if (this.state === 'playing' || this.state === 'boss') {
+    if (this.state === 'playing' || this.state === 'boss' || this.state === 'boss_intro' || this.state === 'boss_result') {
       this._update(scaledDt);
       BR.EventQueue.updateDelayQueue(dt);
     }
@@ -438,6 +480,19 @@ BR.Game = {
       }
     }
 
+    if (BR.BossManager && BR.BossManager.isActive()) {
+      BR.BossManager.update(dt, this.width, this.height, this.paddle, this.balls);
+      if (BR.BossManager.state === 'intro') {
+        this.state = 'boss_intro';
+      } else if (BR.BossManager.state === 'active') {
+        this.state = 'boss';
+      }
+    }
+
+    if (this.paddle && this.paddle.invulnerable !== undefined && this.paddle.invulnerable > 0) {
+      this.paddle.invulnerable -= dt;
+    }
+
     this.brickManager.update(dt);
     BR.Powerups.update(dt, this.width, this.height, this.paddle, this);
     BR.Combo.update(dt);
@@ -462,7 +517,12 @@ BR.Game = {
       BR.Combo.getTimerRatio()
     );
 
-    if (this.boss && this.boss.alive) {
+    if (BR.BossManager && BR.BossManager.currentBoss && BR.BossManager.currentBoss.alive) {
+      var b = BR.BossManager.currentBoss;
+      BR.UI.updateBossBar(b.name, b.hp, b.maxHp);
+      var phaseEl = document.getElementById('bossPhase');
+      if (phaseEl) phaseEl.textContent = b.getCurrentPhase().name;
+    } else if (this.boss && this.boss.alive) {
       BR.UI.updateBossBar(this.boss.name, this.boss.hp, this.boss.maxHp);
     }
 
@@ -560,7 +620,7 @@ BR.Game = {
   },
 
   _checkWaveComplete() {
-    if (this.state === 'boss') return;
+    if (this.state === 'boss' || this.state === 'boss_intro' || this.state === 'boss_result') return;
     if (this.brickManager.destructibleCount > 0) return;
 
     BR.Audio?.levelComplete();
@@ -618,7 +678,13 @@ BR.Game = {
     BR.Level.level = run.level;
     BR.Level.wave = run.wave;
     this._loadWave();
-    this.state = this.boss ? 'boss' : 'playing';
+    if (BR.BossManager && BR.BossManager.isActive()) {
+      this.state = 'boss_intro';
+    } else if (this.boss) {
+      this.state = 'boss';
+    } else {
+      this.state = 'playing';
+    }
     BR.UI.showScreen('game');
     BR.Input.launched = false;
 
@@ -626,6 +692,7 @@ BR.Game = {
   },
 
   _checkBallBossCollision(ball) {
+    if (BR.BossManager && BR.BossManager.isActive()) return;
     if (!this.boss || !this.boss.alive) return;
     var bossRect = this.boss.getBounds();
     var ballRect = { x: ball.x - ball.radius, y: ball.y - ball.radius, width: ball.radius * 2, height: ball.radius * 2 };
@@ -663,6 +730,7 @@ BR.Game = {
     run.level = BR.Level.level;
     run.wave = BR.Level.wave;
     run.currentArea = BR.Level.currentArea;
+    this._bossEncounterArea = BR.Level.currentArea;
     BR.Storage.set('currentArea', BR.Level.currentArea);
     if (result === 'area_unlock') {
       var areas = BR.Storage.get('unlockedAreas') || [0];
@@ -671,6 +739,10 @@ BR.Game = {
         BR.Storage.set('unlockedAreas', areas);
       }
     }
+
+    if (BR.BossManager) BR.BossManager.clear();
+    if (BR.BossAttack) BR.BossAttack.clear();
+    if (BR.EliteManager) BR.EliteManager.clear();
 
     this._loadWave();
     this.state = 'playing';
@@ -781,6 +853,10 @@ BR.Game = {
     BR.Audio?.gameOver();
     BR.Input.reset();
 
+    if (BR.BossManager) BR.BossManager.clear();
+    if (BR.BossAttack) BR.BossAttack.clear();
+    if (BR.EliteManager) BR.EliteManager.clear();
+
     var endResult = BR.RunManager.endRun();
     if (!endResult) return;
 
@@ -812,8 +888,26 @@ BR.Game = {
       this.balls[i].draw(ctx);
     }
 
-    if (this.paddle) this.paddle.draw(ctx);
-    if (this.boss && this.boss.alive) this.boss.draw(ctx);
+    if (this.paddle) {
+      var pAlpha = (this.paddle.invulnerable && this.paddle.invulnerable > 0) ? (Math.sin(performance.now() / 50) > 0 ? 0.4 : 1) : 1;
+      ctx.save();
+      ctx.globalAlpha = pAlpha;
+      this.paddle.draw(ctx);
+      if (this.paddle.invulnerable && this.paddle.invulnerable > 0) {
+        ctx.strokeStyle = 'rgba(255, 0, 68, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(this.paddle.x - 3, this.paddle.y - 3, this.paddle.width + 6, this.paddle.height + 6, 9);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if (BR.BossManager && BR.BossManager.isActive()) {
+      BR.BossManager.draw(ctx);
+    } else if (this.boss && this.boss.alive) {
+      this.boss.draw(ctx);
+    }
 
     BR.Powerups.draw(ctx);
     BR.Particles.draw(ctx);

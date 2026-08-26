@@ -25,6 +25,7 @@
       </div>
       <div class="menu-buttons">
         <button id="btnPlay" class="btn btn-primary" aria-label="Start playing">PLAY</button>
+        <button id="btnWorldMap" class="btn btn-secondary" aria-label="World Map">WORLD MAP</button>
         <button id="btnDaily" class="btn btn-secondary btn-daily" aria-label="Daily Challenge">DAILY CHALLENGE</button>
         <button id="btnUpgrades" class="btn btn-secondary" aria-label="Upgrades shop">UPGRADES</button>
         <button id="btnCollection" class="btn btn-secondary" aria-label="Collection">COLLECTION</button>
@@ -40,6 +41,10 @@
         <div class="menu-coins">
           <span class="coin-icon" aria-hidden="true">&#9679;</span>
           <span id="coinBalance" class="menu-info-value">0</span>
+        </div>
+        <div class="menu-tokens">
+          <span class="token-icon" aria-hidden="true">&#9830;</span>
+          <span id="tokenBalance" class="menu-info-value">0</span>
         </div>
       </div>
     </div>
@@ -78,6 +83,7 @@
   <div id="bossBar" class="boss-bar" hidden>
     <div class="boss-bar-inner">
       <span id="bossName" class="boss-name">BOSS</span>
+      <span id="bossPhase" class="boss-phase">STABLE</span>
       <div class="boss-hp-track">
         <div id="bossHpFill" class="boss-hp-fill" style="width:100%"></div>
       </div>
@@ -283,6 +289,71 @@
     </div>
   </div>
 
+  <!-- Elite Wave Announcement -->
+  <div id="eliteAnnounce" class="overlay" hidden>
+    <div class="elite-announce-container">
+      <div class="elite-announce-text" id="eliteAnnounceText">
+        <div class="elite-announce-label">ELITE WAVE</div>
+        <div class="elite-announce-sub">Enhanced enemies ahead!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boss Result -->
+  <div id="bossResultOverlay" class="overlay" hidden>
+    <div class="boss-result-container card">
+      <h2 class="overlay-title title-glow victory-title">BOSS DEFEATED!</h2>
+      <div id="bossResultName" class="boss-result-name"></div>
+      <div class="boss-result-stats">
+        <div class="boss-result-stat">
+          <span class="boss-result-label">SCORE</span>
+          <span id="bossResultScore" class="boss-result-value">0</span>
+        </div>
+        <div class="boss-result-stat">
+          <span class="boss-result-label">TIME</span>
+          <span id="bossResultTime" class="boss-result-value">0:00</span>
+        </div>
+        <div class="boss-result-stat">
+          <span class="boss-result-label">BEST COMBO</span>
+          <span id="bossResultCombo" class="boss-result-value">x0</span>
+        </div>
+      </div>
+      <div class="boss-result-rewards">
+        <div class="boss-result-reward">
+          <span class="boss-result-reward-icon">&#9679;</span>
+          <span id="bossResultCoins" class="boss-result-reward-value">+0</span>
+        </div>
+        <div class="boss-result-reward">
+          <span class="boss-result-reward-icon">&#9830;</span>
+          <span id="bossResultTokens" class="boss-result-reward-value">+0</span>
+        </div>
+      </div>
+      <div id="bossResultBest" class="boss-result-best"></div>
+      <div class="boss-result-buttons">
+        <button id="btnBossContinue" class="btn btn-primary">CONTINUE</button>
+        <button id="btnBossReplay" class="btn btn-secondary" style="display:none">REPLAY</button>
+        <button id="btnBossWorldMap" class="btn btn-secondary">WORLD MAP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- World Map -->
+  <div id="worldMapOverlay" class="overlay" hidden>
+    <div class="worldmap-container card">
+      <h2 class="overlay-title title-glow">WORLD MAP</h2>
+      <div class="worldmap-tokens">
+        <span class="token-icon" aria-hidden="true">&#9830;</span>
+        <span id="tokenBalanceMap" class="menu-info-value">0</span>
+        <span class="menu-info-label">CORE TOKENS</span>
+      </div>
+      <div id="worldMapAreas" class="worldmap-areas"></div>
+      <div class="worldmap-buttons">
+        <button id="btnWorldMapPlay" class="btn btn-primary">PLAY</button>
+        <button id="btnWorldMapBack" class="btn btn-secondary">BACK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Reset Modal -->
   <div id="resetModal" class="overlay modal-overlay" hidden>
     <div class="reset-modal card">
@@ -321,6 +392,9 @@
   <script src="./js/physics.js"></script>
   <script src="./js/level.js"></script>
   <script src="./js/boss.js"></script>
+  <script src="./js/bossConfig.js"></script>
+  <script src="./js/worldManager.js"></script>
+  <script src="./js/eliteManager.js"></script>
   <script src="./js/powerups.js"></script>
   <script src="./js/upgrades.js"></script>
   <script src="./js/runManager.js"></script>

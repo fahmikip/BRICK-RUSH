@@ -266,5 +266,66 @@ BR.Audio = {
     this._play(440, 'sine', 0.15, 0.2);
     setTimeout(() => this._play(660, 'sine', 0.15, 0.2), 100);
     setTimeout(() => this._play(880, 'sine', 0.2, 0.25), 200);
+  },
+
+  bossWarning() {
+    const notes = [200, 250, 300, 200, 250, 300];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sawtooth', 0.15, 0.2), i * 100);
+    });
+  },
+
+  bossEntrance() {
+    this._play(80, 'sawtooth', 0.5, 0.35);
+    setTimeout(() => this._play(120, 'sawtooth', 0.4, 0.3), 300);
+    setTimeout(() => this._play(160, 'sawtooth', 0.3, 0.25), 600);
+  },
+
+  weakPointHit() {
+    this._play(1200, 'square', 0.08, 0.25);
+    setTimeout(() => this._play(1600, 'sine', 0.12, 0.2), 40);
+  },
+
+  phaseTransition() {
+    this._play(300, 'sawtooth', 0.3, 0.3);
+    setTimeout(() => this._play(500, 'sawtooth', 0.2, 0.25), 150);
+    setTimeout(() => this._play(200, 'sawtooth', 0.4, 0.2), 300);
+  },
+
+  shieldBreak() {
+    this._play(100, 'sawtooth', 0.3, 0.35);
+    this._playNoise(0.2, 0.25, 200, 600);
+  },
+
+  laserWarning() {
+    this._play(800, 'sine', 0.1, 0.15);
+    setTimeout(() => this._play(1000, 'sine', 0.1, 0.15), 100);
+    setTimeout(() => this._play(1200, 'sine', 0.15, 0.2), 200);
+  },
+
+  laserFire() {
+    this._play(200, 'sawtooth', 0.4, 0.25);
+    this._playNoise(0.3, 0.2, 400, 1200);
+  },
+
+  minionSpawn() {
+    this._play(150, 'square', 0.15, 0.15);
+  },
+
+  shockwave() {
+    this._play(100, 'sawtooth', 0.3, 0.3);
+    this._playNoise(0.25, 0.25, 50, 200);
+  },
+
+  areaUnlock() {
+    const notes = [523, 659, 784, 1047, 1319];
+    notes.forEach((freq, i) => {
+      setTimeout(() => this._play(freq, 'sine', 0.25, 0.25), i * 100);
+    });
+  },
+
+  tokenCollect() {
+    this._play(1319, 'sine', 0.1, 0.2);
+    setTimeout(() => this._play(1568, 'sine', 0.15, 0.2), 60);
   }
 };

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brickrush-v2';
+const CACHE_NAME = 'brickrush-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,9 @@ const ASSETS = [
   './js/physics.js',
   './js/level.js',
   './js/boss.js',
+  './js/bossConfig.js',
+  './js/worldManager.js',
+  './js/eliteManager.js',
   './js/powerups.js',
   './js/upgrades.js',
   './js/runManager.js',
