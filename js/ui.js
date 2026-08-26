@@ -139,6 +139,7 @@ BR.UI = {
       menuPlayerLevel: document.getElementById('menuPlayerLevel'),
       loadingScreen: document.getElementById('loadingScreen'),
       notificationContainer: document.getElementById('notificationContainer'),
+      toggleRage: document.getElementById('toggleRage'),
     };
 
     this._bindEvents();
@@ -318,6 +319,15 @@ BR.UI = {
       self.renderSettings();
     });
 
+    this.elements.toggleRage?.addEventListener('click', function () {
+      BR.Audio?.buttonClick();
+      var settings = BR.Storage.get('settings');
+      settings.rageEvents = !settings.rageEvents;
+      BR.Storage.set('settings', settings);
+      if (BR.RageEvents) BR.RageEvents.enabled = settings.rageEvents;
+      self.renderSettings();
+    });
+
     this.elements.btnReset?.addEventListener('click', function () {
       BR.Audio?.buttonClick();
       self.elements.resetModal.removeAttribute('hidden');
@@ -434,6 +444,31 @@ BR.UI = {
         var tab = this.getAttribute('data-tab');
         self._missionsTab = tab;
         self.renderMissions(tab);
+      });
+    }
+
+    var modeBtns = document.querySelectorAll('.mode-btn');
+    for (var m = 0; m < modeBtns.length; m++) {
+      modeBtns[m].addEventListener('click', function() {
+        BR.Audio?.buttonClick();
+        var mode = this.getAttribute('data-mode');
+        self._selectedMode = mode;
+        for (var j = 0; j < modeBtns.length; j++) {
+          modeBtns[j].className = 'mode-btn';
+        }
+        if (mode === 'normal') {
+          this.className = 'mode-btn mode-active';
+          if (BR.HardcoreManager) BR.HardcoreManager.setMode(false);
+          if (BR.EnduranceManager) BR.EnduranceManager.active = false;
+        } else if (mode === 'hardcore') {
+          this.className = 'mode-btn mode-hardcore-active';
+          if (BR.HardcoreManager) BR.HardcoreManager.setMode(true);
+          if (BR.EnduranceManager) BR.EnduranceManager.active = false;
+        } else if (mode === 'endurance') {
+          this.className = 'mode-btn mode-endurance-active';
+          if (BR.HardcoreManager) BR.HardcoreManager.setMode(false);
+          if (BR.EnduranceManager) BR.EnduranceManager.active = true;
+        }
       });
     }
   },
@@ -554,6 +589,58 @@ BR.UI = {
     if (this.elements.hudCoins) this.elements.hudCoins.textContent = coins.toLocaleString();
     if (this.elements.hudLevel) this.elements.hudLevel.textContent = 'Lv.' + level;
     if (this.elements.hudWave) this.elements.hudWave.textContent = 'W' + wave;
+
+    var modeEl = document.getElementById('hudMode');
+    if (modeEl) {
+      if (BR.HardcoreManager && BR.HardcoreManager.active) {
+        modeEl.textContent = 'HC';
+        modeEl.style.display = 'flex';
+        modeEl.style.color = '#ff3344';
+        modeEl.style.borderColor = '#ff3344';
+      } else if (BR.EnduranceManager && BR.EnduranceManager.active) {
+        modeEl.textContent = 'ENDURE';
+        modeEl.style.display = 'flex';
+        modeEl.style.color = '#ffcc00';
+        modeEl.style.borderColor = '#ffcc00';
+      } else {
+        modeEl.style.display = 'none';
+      }
+    }
+
+    var livesEl = document.getElementById('hudLives');
+    var livesVal = document.getElementById('hudLivesValue');
+    if (livesEl && BR.Game) {
+      if (BR.HardcoreManager && BR.HardcoreManager.active) {
+        if (livesVal) livesVal.textContent = 'x' + (BR.Game.lives || 1);
+        livesEl.style.display = 'flex';
+      } else {
+        livesEl.style.display = 'none';
+      }
+    }
+
+    var rageEl = document.getElementById('hudRageEvent');
+    if (rageEl && BR.RageEvents) {
+      if (BR.RageEvents.currentEvent && !BR.RageEvents.isWarning) {
+        rageEl.textContent = BR.RageEvents.currentEvent.name;
+        rageEl.style.display = 'flex';
+        rageEl.style.color = BR.RageEvents.currentEvent.color;
+        rageEl.style.borderColor = BR.RageEvents.currentEvent.color;
+        var rageTimeEl = document.getElementById('hudRageTime');
+        if (rageTimeEl) {
+          rageTimeEl.textContent = Math.ceil(BR.RageEvents.eventDuration) + 's';
+        }
+      } else if (BR.RageEvents.isWarning) {
+        rageEl.textContent = '!! WARNING !!';
+        rageEl.style.display = 'flex';
+        rageEl.style.color = '#ff3344';
+        rageEl.style.borderColor = '#ff3344';
+        var rageTimeEl2 = document.getElementById('hudRageTime');
+        if (rageTimeEl2) rageTimeEl2.textContent = '';
+      } else {
+        rageEl.style.display = 'none';
+      }
+    }
+
     if (this.elements.hudCombo) {
       var comboEl = this.elements.hudCombo;
       var comboVal = document.getElementById('hudComboValue');
@@ -611,9 +698,17 @@ BR.UI = {
       this.elements.summaryNewBest.style.display = endResult.isNewBest ? 'block' : 'none';
     }
     if (this.elements.summaryRewards) {
-      this.elements.summaryRewards.innerHTML =
-        '<div class="summary-reward">+' + earned + ' Coins</div>' +
-        '<div class="summary-reward">+' + r.bricksDestroyed + ' Bricks Destroyed</div>';
+      var html = '<div class="summary-reward">+' + earned + ' Coins</div>';
+      html += '<div class="summary-reward">+' + r.bricksDestroyed + ' Bricks Destroyed</div>';
+      if (BR.HardcoreManager && BR.HardcoreManager.active) {
+        html += '<div class="summary-reward" style="color:var(--accent-red)">HARDCORE MODE</div>';
+        html += '<div class="summary-reward" style="color:var(--accent-yellow)">Score x' + BR.HardcoreManager.getScoreMultiplier() + '</div>';
+      }
+      if (BR.EnduranceManager && BR.EnduranceManager.active) {
+        html += '<div class="summary-reward" style="color:var(--accent-yellow)">ENDURANCE MODE</div>';
+        html += '<div class="summary-reward">Waves: ' + BR.EnduranceManager.waveCount + '</div>';
+      }
+      this.elements.summaryRewards.innerHTML = html;
     }
     this.showScreen('run_summary');
   },
@@ -996,6 +1091,7 @@ BR.UI = {
     this._updateToggle(this.elements.toggleMusic, settings.music);
     this._updateToggle(this.elements.toggleSound, settings.sound);
     this._updateToggle(this.elements.toggleMotion, settings.reduceMotion);
+    this._updateToggle(this.elements.toggleRage, settings.rageEvents !== false);
   },
 
   _updateToggle(el, isOn) {

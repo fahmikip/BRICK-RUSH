@@ -50,7 +50,8 @@ BR.Storage = {
       sound: true,
       vibration: true,
       reduceMotion: false,
-      fullscreen: false
+      fullscreen: false,
+      rageEvents: true
     },
     meta: {
       level: 1,

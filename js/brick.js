@@ -15,7 +15,9 @@ BR.BrickTypes = {
   EXPLOSIVE:  { id: 'explosive',  name: 'Explosive',  baseHp: 1, armor: 0, scoreValue: 15,  coinValue: 1, color: '#ff3344', glow: '#cc0022', weight: 2  },
   CHAIN:      { id: 'chain',      name: 'Chain',      baseHp: 1, armor: 0, scoreValue: 15,  coinValue: 1, color: '#aa44ff', glow: '#8822cc', weight: 2  },
   COIN:       { id: 'coin',       name: 'Coin',       baseHp: 1, armor: 0, scoreValue: 10,  coinValue: 5, color: '#ffcc00', glow: '#ccaa00', weight: 4  },
-  MYSTERY:    { id: 'mystery',    name: 'Mystery',    baseHp: 1, armor: 0, scoreValue: 20,  coinValue: 3, color: '#ff00aa', glow: '#cc0088', weight: 2  }
+  MYSTERY:    { id: 'mystery',    name: 'Mystery',    baseHp: 1, armor: 0, scoreValue: 20,  coinValue: 3, color: '#ff00aa', glow: '#cc0088', weight: 2  },
+  REGEN:      { id: 'regen',      name: 'Regen',      baseHp: 2, armor: 0, scoreValue: 20,  coinValue: 2, color: '#00ff88', glow: '#00cc66', weight: 0   },
+  TURRET:     { id: 'turret',     name: 'Turret',     baseHp: 2, armor: 0, scoreValue: 30,  coinValue: 3, color: '#ff6600', glow: '#cc4400', weight: 0   }
 };
 
 BR.BrickTypeById = {};
@@ -59,6 +61,11 @@ BR.Brick = class Brick {
     this.pendingDestroy = false;
 
     this._crackSeed = Math.random() * 1000;
+    this.regenTimer = 0;
+    this.regenInterval = 12;
+    this.turretTimer = 0;
+    this.turretCooldown = 4;
+    this.turretProjectile = null;
   }
 
   get effectiveHp() {
@@ -148,6 +155,40 @@ BR.Brick = class Brick {
 
     if (this.state === BR.BrickStates.DESTROYED) return;
 
+    if (this.type.id === 'regen' && this.alive && this.hp < this.maxHp) {
+      this.regenTimer += dt;
+      if (this.regenTimer >= this.regenInterval) {
+        this.regenTimer = 0;
+        this.hp = Math.min(this.hp + 1, this.maxHp);
+        this.crackLevel = 1 - (this.effectiveHp / this.maxEffectiveHp);
+        this.state = this.getState();
+        if (BR.Particles) {
+          BR.Particles.emitBrickHit(this.x + this.width / 2, this.y + this.height / 2, '#00ff88', 5);
+        }
+      }
+    }
+
+    if (this.type.id === 'turret' && this.alive) {
+      this.turretTimer += dt;
+      if (this.turretTimer >= this.turretCooldown) {
+        this.turretTimer = 0;
+        this.turretProjectile = {
+          x: this.x + this.width / 2,
+          y: this.y + this.height,
+          vy: 3,
+          active: true
+        };
+      }
+    }
+
+    if (this.turretProjectile && this.turretProjectile.active) {
+      this.turretProjectile.y += this.turretProjectile.vy * dt * 60;
+      if (BR.Game && this.turretProjectile.y > BR.Game.height) {
+        this.turretProjectile.active = false;
+        this.turretProjectile = null;
+      }
+    }
+
     if (this.hitTimer > 0) {
       this.hitTimer -= dt;
       this.hitScale = 1 + (this.hitTimer / 0.15) * 0.2;
@@ -201,6 +242,16 @@ BR.Brick = class Brick {
 
     this._drawCracks(ctx);
     this._drawGlow(ctx);
+
+    if (this.turretProjectile && this.turretProjectile.active) {
+      ctx.fillStyle = '#ff6600';
+      ctx.shadowColor = '#ff6600';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(this.turretProjectile.x, this.turretProjectile.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
 
     ctx.restore();
   }
@@ -262,6 +313,16 @@ BR.Brick = class Brick {
           ctx.font = 'bold ' + Math.floor(this.height * 0.45) + 'px monospace';
           ctx.fillText(this.hp + '', cx, cy + 1);
         }
+        break;
+      case 'regen':
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.floor(this.height * 0.55) + 'px sans-serif';
+        ctx.fillText('+', cx, cy + 1);
+        break;
+      case 'turret':
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.floor(this.height * 0.5) + 'px sans-serif';
+        ctx.fillText('\u25B2', cx, cy + 1);
         break;
     }
     ctx.restore();

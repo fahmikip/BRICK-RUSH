@@ -372,3 +372,108 @@
 .watermark:hover {
   color: rgba(255, 255, 255, 0.5);
 }
+
+/* ============================================
+   Mode Selector (Main Menu)
+   ============================================ */
+.mode-selector {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  max-width: 280px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 2px solid var(--glass-border);
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 10px 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-main);
+}
+
+.mode-btn:not(:last-child) {
+  border-right: 1px solid var(--glass-border);
+}
+
+.mode-btn.mode-active {
+  background: var(--accent-neon);
+  color: var(--bg-primary);
+}
+
+.mode-btn.mode-hardcore-active {
+  background: var(--accent-red);
+  color: white;
+}
+
+.mode-btn.mode-endurance-active {
+  background: var(--accent-yellow);
+  color: var(--bg-primary);
+}
+
+.mode-btn:hover:not(.mode-active):not(.mode-hardcore-active):not(.mode-endurance-active) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   HUD Mode Badge
+   ============================================ */
+.hud-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  border: 1px solid;
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+/* ============================================
+   HUD Lives
+   ============================================ */
+.hud-lives {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.hud-lives-value {
+  color: var(--accent-red) !important;
+  font-size: 0.9rem !important;
+}
+
+/* ============================================
+   HUD Rage Event Indicator
+   ============================================ */
+.hud-rage-event {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border: 1px solid;
+  animation: pulse 0.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.hud-rage-time {
+  font-size: 0.5rem;
+  opacity: 0.8;
+}

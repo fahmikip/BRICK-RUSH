@@ -166,6 +166,10 @@ BR.Game = {
     var run = BR.RunManager.newRun(isDaily);
     this.modifiers = BR.BuildManager.getStats();
 
+    if (BR.HardcoreManager.active) {
+      BR.HardcoreManager.applyToModifiers(this.modifiers);
+    }
+
     this.score = 0;
     this.displayScore = 0;
     this.runCoins = 0;
@@ -176,11 +180,15 @@ BR.Game = {
     this._explosionSet = null;
     this._pendingUpgradeChoices = null;
     this._bossEncounterArea = 0;
+    this.lives = BR.HardcoreManager.active ? BR.HardcoreManager.config.hardcore.lives : 1;
 
     if (BR.BossManager) BR.BossManager.clear();
     if (BR.BossAttack) BR.BossAttack.clear();
     if (BR.EliteManager) BR.EliteManager.clear();
     if (BR.WorldManager) BR.WorldManager.init();
+    if (BR.EnduranceManager && BR.EnduranceManager.active) BR.EnduranceManager.start();
+    if (BR.RageEvents && BR.HardcoreManager.active) BR.RageEvents.start();
+    else if (BR.RageEvents) BR.RageEvents.stop();
 
     BR.Level.reset();
     var savedArea = BR.Storage.get('currentArea') || 0;
@@ -201,11 +209,15 @@ BR.Game = {
     BR.Input.reset();
     BR.Particles.clear();
     BR.Effects.clear();
+    if (BR.RageEvents && BR.HardcoreManager.active) BR.RageEvents.init();
 
     this.brickManager = new BR.BrickManager();
 
     this.paddle = new BR.Paddle(this.width, this.height);
     this.paddle.applyWidthMultiplier(this.modifiers.paddleWidth);
+    if (BR.HardcoreManager.active) {
+      BR.HardcoreManager.applyToPaddle(this.paddle);
+    }
 
     this.balls = [];
     var ball = new BR.Ball(this.width / 2, this.paddle.y - 10);
@@ -216,6 +228,9 @@ BR.Game = {
     if (this.modifiers.ballSizeMult !== 1) {
       ball.radius = Math.floor(8 * this.modifiers.ballSizeMult);
     }
+    if (BR.HardcoreManager.active) {
+      BR.HardcoreManager.applyToBall(ball);
+    }
     var skin = BR.CollectionManager.getActiveBallSkin();
     ball.color = skin.color;
     this.balls.push(ball);
@@ -223,6 +238,10 @@ BR.Game = {
     if (this.paddle) {
       var pskin = BR.CollectionManager.getActivePaddleSkin();
       this.paddle.color = pskin.color;
+    }
+
+    if (BR.HardcoreManager.active) {
+      BR.HardcoreManager.applyToComboDuration();
     }
 
     this._loadWave();
@@ -252,7 +271,8 @@ BR.Game = {
 
     // Check if previous level was a boss level (every 10 levels)
     // Level is already incremented by RunManager, so check (level-1)
-    if (run.level > 1 && (run.level - 1) % 10 === 0 && run.wave === 1) {
+    var bossInterval = BR.EnduranceManager && BR.EnduranceManager.active ? BR.EnduranceManager.bossEvery : 10;
+    if (run.level > 1 && (run.level - 1) % bossInterval === 0 && run.wave === 1) {
       BR.Level.isBossWave = true;
     }
 
@@ -323,6 +343,8 @@ BR.Game = {
     if (BR.BossManager) BR.BossManager.clear();
     if (BR.BossAttack) BR.BossAttack.clear();
     if (BR.EliteManager) BR.EliteManager.clear();
+    if (BR.RageEvents) BR.RageEvents.stop();
+    if (BR.EnduranceManager && BR.EnduranceManager.active) BR.EnduranceManager.stop();
   },
 
   _loop() {
@@ -354,19 +376,31 @@ BR.Game = {
 
   _update(dt) {
     var targetPx = BR.Input.targetX * this.width;
+    if (BR.RageEvents && BR.RageEvents.isInverted()) {
+      targetPx = this.width - targetPx;
+    }
     this.paddle.update(dt, targetPx, this.width);
 
     var kSpeed = 6 * dt * 60 * (this.modifiers.paddleSpeed || 1);
-    if (BR.Input.isKeyDown('ArrowLeft') || BR.Input.isKeyDown('KeyA')) {
+    var kLeft = BR.Input.isKeyDown('ArrowLeft') || BR.Input.isKeyDown('KeyA');
+    var kRight = BR.Input.isKeyDown('ArrowRight') || BR.Input.isKeyDown('KeyD');
+    if (BR.RageEvents && BR.RageEvents.isInverted()) {
+      var tmp = kLeft;
+      kLeft = kRight;
+      kRight = tmp;
+    }
+    if (kLeft) {
       this.paddle.x -= kSpeed;
     }
-    if (BR.Input.isKeyDown('ArrowRight') || BR.Input.isKeyDown('KeyD')) {
+    if (kRight) {
       this.paddle.x += kSpeed;
     }
     if (this.paddle.x < 0) this.paddle.x = 0;
     if (this.paddle.x + this.paddle.width > this.width) {
       this.paddle.x = this.width - this.paddle.width;
     }
+
+    if (BR.RageEvents) BR.RageEvents.update(dt);
 
     for (var i = this.balls.length - 1; i >= 0; i--) {
       var ball = this.balls[i];
@@ -405,7 +439,34 @@ BR.Game = {
           ball.active = false;
           this.balls.splice(i, 1);
           if (this.balls.length === 0) {
-            setTimeout(() => this._gameOver(), 300);
+            this.lives--;
+            if (this.lives > 0) {
+              var newBall = new BR.Ball(this.width / 2, this.paddle.y - 10);
+              newBall.baseDamage = Math.ceil(this.modifiers.damageMultiplier);
+              newBall.damage = newBall.calculateDamage();
+              newBall.baseSpeed = 5 * this.modifiers.ballSpeed;
+              newBall.speed = newBall.baseSpeed;
+              if (this.modifiers.ballSizeMult !== 1) {
+                newBall.radius = Math.floor(8 * this.modifiers.ballSizeMult);
+              }
+              var skin = BR.CollectionManager.getActiveBallSkin();
+              newBall.color = skin.color;
+              BR.Powerups.applyToNewBall(newBall, this);
+              this.balls.push(newBall);
+              if (this.paddle) {
+                var pskin = BR.CollectionManager.getActivePaddleSkin();
+                this.paddle.color = pskin.color;
+              }
+              BR.Input.launched = false;
+              if (BR.Effects) {
+                BR.Effects.addFloatingText(this.width / 2, this.height / 2, 'LIVES: ' + this.lives, '#ff3344', {
+                  fontSize: 22, speed: 0.5, life: 1.5, drift: 0
+                });
+              }
+              if (BR.RageEvents) BR.RageEvents.stop();
+            } else {
+              setTimeout(() => this._gameOver(), 300);
+            }
           }
         }
         continue;
@@ -415,6 +476,9 @@ BR.Game = {
         BR.Audio?.ballBounce();
         if (BR.Particles) BR.Particles.emitPaddleHit(ball.x, this.paddle.y);
         BR.Combo.reset();
+        if (BR.HardcoreManager.active) {
+          BR.HardcoreManager.addRandomAngleToBall(ball);
+        }
       }
 
       this._explosionSet = new Set();
@@ -494,6 +558,22 @@ BR.Game = {
     }
 
     this.brickManager.update(dt);
+
+    var activeBricks = this.brickManager.getActiveBricks();
+    for (var bi = 0; bi < activeBricks.length; bi++) {
+      var brick = activeBricks[bi];
+      if (brick.turretProjectile && brick.turretProjectile.active) {
+        var tp = brick.turretProjectile;
+        if (this.paddle && tp.y >= this.paddle.y && tp.y <= this.paddle.y + this.paddle.height &&
+            tp.x >= this.paddle.x && tp.x <= this.paddle.x + this.paddle.width) {
+          tp.active = false;
+          brick.turretProjectile = null;
+          if (BR.Particles) BR.Particles.emitPaddleHit(tp.x, this.paddle.y);
+          if (BR.Effects) BR.Effects.addFloatingText(tp.x, tp.y - 10, 'HIT!', '#ff6600', { fontSize: 12, speed: 1, life: 0.6 });
+        }
+      }
+    }
+
     BR.Powerups.update(dt, this.width, this.height, this.paddle, this);
     BR.Combo.update(dt);
     BR.Juice.update(dt);
@@ -889,8 +969,18 @@ BR.Game = {
     if (BR.BossManager) BR.BossManager.clear();
     if (BR.BossAttack) BR.BossAttack.clear();
     if (BR.EliteManager) BR.EliteManager.clear();
+    if (BR.RageEvents) BR.RageEvents.stop();
+    if (BR.EnduranceManager && BR.EnduranceManager.active) BR.EnduranceManager.stop();
 
     if (BR.MissionManager) BR.MissionManager.handleEvent('playTime', { seconds: Math.floor((performance.now() - (BR.RunManager.getState().startTime || performance.now())) / 1000) });
+
+    var run = BR.RunManager.getState();
+    if (BR.HardcoreManager.active && run) {
+      var coinPenalty = BR.HardcoreManager.getCoinPenalty(run.coins);
+      var scorePenalty = BR.HardcoreManager.getScorePenalty(run.score);
+      run.coins = Math.max(0, run.coins - coinPenalty);
+      run.score = Math.max(0, run.score - scorePenalty);
+    }
 
     var endResult = BR.RunManager.endRun();
     if (!endResult) return;
@@ -922,7 +1012,24 @@ BR.Game = {
     this.brickManager.draw(ctx);
 
     for (var i = 0; i < this.balls.length; i++) {
-      this.balls[i].draw(ctx);
+      var ball = this.balls[i];
+      if (BR.RageEvents && BR.RageEvents.isBallInvisible()) {
+        if (ball.trail && ball.trail.length > 0) {
+          ctx.save();
+          for (var t = 0; t < ball.trail.length; t++) {
+            var tr = ball.trail[t];
+            var alpha = (t / ball.trail.length) * 0.3;
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(tr.x, tr.y, (t / ball.trail.length) * ball.radius * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      } else {
+        ball.draw(ctx);
+      }
     }
 
     if (this.paddle) {
@@ -951,6 +1058,8 @@ BR.Game = {
     BR.Effects.draw(ctx);
     BR.Juice.drawFlash(ctx, this.width, this.height);
 
+    if (BR.RageEvents) BR.RageEvents.drawBlindSpots(ctx);
+
     BR.Powerups.drawActiveEffects(ctx, 10, this.height - 30);
 
     ctx.restore();
@@ -967,6 +1076,16 @@ BR.Game = {
         ctx.fillText(tapText, this.width / 2, this.height - 80);
         ctx.restore();
       }
+    }
+
+    if (BR.HardcoreManager.active) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 51, 68, 0.15)';
+      ctx.fillRect(0, 0, this.width, 3);
+      ctx.fillRect(0, this.height - 3, this.width, 3);
+      ctx.fillRect(0, 0, 3, this.height);
+      ctx.fillRect(this.width - 3, 0, 3, this.height);
+      ctx.restore();
     }
 
     BR.Debug.draw(ctx, this);

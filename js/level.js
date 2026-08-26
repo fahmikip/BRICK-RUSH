@@ -13,7 +13,15 @@ BR.LevelGenerator = {
   ],
 
   getConfig(level, wave, canvasWidth, canvasHeight) {
-    const difficultyMult = 1 + (level - 1) * 0.25 + (wave - 1) * 0.08;
+    var difficultyMult;
+    if (BR.EnduranceManager && BR.EnduranceManager.active) {
+      difficultyMult = BR.EnduranceManager.getDifficultyMultiplier(level, wave);
+    } else {
+      difficultyMult = 1 + (level - 1) * 0.25 + (wave - 1) * 0.08;
+    }
+    if (BR.HardcoreManager && BR.HardcoreManager.active) {
+      difficultyMult *= BR.HardcoreManager.config.hardcore.enemyHpMult;
+    }
     const patternIdx = (level - 1) % this.patterns.length;
     const pattern = this.patterns[patternIdx];
 
@@ -49,6 +57,9 @@ BR.LevelGenerator = {
   },
 
   _getSpecialChance(level) {
+    if (BR.EnduranceManager && BR.EnduranceManager.active) {
+      return BR.EnduranceManager.getSpecialChance(level);
+    }
     if (level <= 3) return 0.05;
     if (level <= 6) return 0.12;
     if (level <= 9) return 0.2;
@@ -56,7 +67,7 @@ BR.LevelGenerator = {
   },
 
   _getTypeWeights(level) {
-    const w = { normal: 70, strong: 15, armored: 0, explosive: 0, chain: 0, coin: 0, mystery: 0 };
+    const w = { normal: 70, strong: 15, armored: 0, explosive: 0, chain: 0, coin: 0, mystery: 0, regen: 0, turret: 0 };
 
     if (level >= 4) {
       w.coin = 4;
@@ -73,6 +84,17 @@ BR.LevelGenerator = {
       w.normal -= 6;
     }
 
+    if (BR.HardcoreManager && BR.HardcoreManager.active) {
+      if (level >= 5) {
+        w.regen = 3;
+        w.normal -= 3;
+      }
+      if (level >= 8) {
+        w.turret = 3;
+        w.normal -= 3;
+      }
+    }
+
     if (w.normal < 40) w.normal = 40;
     return w;
   },
@@ -80,7 +102,7 @@ BR.LevelGenerator = {
   _chooseType(typeWeights, specialChance) {
     if (Math.random() < specialChance) {
       let roll = Math.random() * 100;
-      const specials = ['strong', 'armored', 'explosive', 'chain', 'coin', 'mystery'];
+      const specials = ['strong', 'armored', 'explosive', 'chain', 'coin', 'mystery', 'regen', 'turret'];
       for (const id of specials) {
         if (typeWeights[id] > 0) {
           roll -= typeWeights[id];
@@ -261,17 +283,27 @@ BR.Level = {
 
   nextWave() {
     this.wave++;
-    if (this.wave > this.wavesPerLevel) {
+    var wavesPerLevel = BR.EnduranceManager && BR.EnduranceManager.active ? BR.EnduranceManager.getWavesPerLevel() : this.wavesPerLevel;
+    if (this.wave > wavesPerLevel) {
       this.wave = 1;
       this.isBossWave = true;
       this.isEliteWave = false;
+      if (BR.EnduranceManager && BR.EnduranceManager.active) BR.EnduranceManager.incrementWave();
       return 'boss';
     }
-    if (this.wave === this.wavesPerLevel) {
-      this.isEliteWave = true;
-      return 'elite';
+    if (BR.EnduranceManager && BR.EnduranceManager.active) {
+      if (BR.EnduranceManager.shouldEliteWave(this.wave)) {
+        this.isEliteWave = true;
+        return 'elite';
+      }
+    } else {
+      if (this.wave === wavesPerLevel) {
+        this.isEliteWave = true;
+        return 'elite';
+      }
     }
     this.isEliteWave = false;
+    if (BR.EnduranceManager && BR.EnduranceManager.active) BR.EnduranceManager.incrementWave();
     return 'normal';
   },
 
@@ -280,7 +312,8 @@ BR.Level = {
     this.wave = 1;
     this.isBossWave = false;
     this.isEliteWave = false;
-    if ((this.level - 1) % 5 === 0 && this.currentArea < this.areas.length - 1) {
+    var areaInterval = BR.EnduranceManager && BR.EnduranceManager.active ? 3 : 5;
+    if ((this.level - 1) % areaInterval === 0 && this.currentArea < this.areas.length - 1) {
       this.currentArea++;
       return 'area_unlock';
     }

@@ -31,6 +31,9 @@ BR.Main = {
     BR.UnlockManager.init();
     BR.CollectionManager.init();
     if (BR.WorldManager) BR.WorldManager.init();
+    if (BR.HardcoreManager) BR.HardcoreManager.init && BR.HardcoreManager.init();
+    if (BR.RageEvents) BR.RageEvents.init();
+    if (BR.EnduranceManager) BR.EnduranceManager.active = false;
 
     var params = new URLSearchParams(window.location.search);
     if (params.get('debug') === 'true') {
